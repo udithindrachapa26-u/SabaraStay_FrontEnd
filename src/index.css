@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+@layer components {
+  .input {
+    @apply w-full bg-white/90 text-gray-800 px-4 py-2 rounded-lg text-sm 
+           focus:outline-none focus:ring-2 focus:ring-yellow-400;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.9s ease-out both;
+}

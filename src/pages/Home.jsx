@@ -1,140 +1,140 @@
-import { Link } from "react-router-dom";
+import Navbar from "../components/common/Navbar";
+import WhyUs from "../components/WhyUs";
+import StayCard from "../components/StayCard";
+import BoardingFacilities from "../components/BoardingFacilities";
+import Footer from "../components/common/Footer";
 
-function Home() {
+/*import { motion } from "framer-motion";
+import CountUp from "react-countup";
+import { useInView } from "react-intersection-observer";*/
+
+export default function Home() {
   return (
-    <div className="bg-gray-100">
+    <div className="font-sans overflow-x-hidden">
 
-      {/* 🔹 HERO SECTION */}
-      <div className="relative h-[90vh] bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1568605114967-8130f3a36994')",
-        }}
-      >
-        <div className="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative min-h-screen overflow-hidden">
 
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-center">
-            FIND the best stay
-          </h1>
-          <p className="mb-6 text-center">
-            Discover comfortable boarding places near you
-          </p>
+        {/* Background */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1568605114967-8130f3a36994')",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b1f3a]/90 to-[#0b1f3a]/70" />
 
-          {/* SEARCH BOX */}
-          <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-3xl text-gray-800 grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input
-              type="text"
-              placeholder="Location"
-              className="border p-2 rounded"
-            />
-            <input
-              type="number"
-              placeholder="Max Price"
-              className="border p-2 rounded"
-            />
-            <select className="border p-2 rounded">
-              <option>Male</option>
-              <option>Female</option>
-              <option>Any</option>
-            </select>
-            <button className="bg-yellow-400 font-semibold rounded hover:bg-yellow-500">
-              Search
+        {/* Hero Content */}
+        <div className="relative z-10 text-white">
+          <Navbar />
+
+          {/* Categories */}
+          <section className="flex justify-center gap-12 mt-10">
+            {[
+              { icon: "🛏️", label: "Short Term" },
+              { icon: "🏠", label: "Long Term" },
+              { icon: "🎓", label: "For Lecturers" },
+              { icon: "📍", label: "List Property" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center group cursor-pointer">
+                <div className="w-16 h-16 bg-yellow-400 rounded-xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                  {item.icon}
+                </div>
+                <span className="mt-3 text-sm font-medium opacity-90">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </section>
+
+          {/* Hero Main */}
+          <section className="max-w-7xl mx-auto px-10 mt-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-5xl xl:text-6xl font-extrabold leading-tight">
+                Find <br />
+                the <span className="text-yellow-400">perfect</span> <br />
+                place to stay
+              </h2>
+              <p className="mt-6 text-gray-200 max-w-md">
+                Discover safe, affordable and comfortable boarding places near
+                your university in seconds.
+              </p>
+            </div>
+
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+              <div className="grid grid-cols-2 gap-4">
+                <select className="input">Make</select>
+                <select className="input">Type</select>
+                <select className="input">Gender</select>
+                <select className="input">Distance</select>
+                <input className="input" placeholder="Min Count" />
+                <input className="input" placeholder="Max Count" />
+                <input className="input" placeholder="Min Price" />
+                <input className="input" placeholder="Max Price" />
+              </div>
+
+              <input className="input mt-4 w-full" placeholder="Place / Name" />
+
+              <button className="mt-6 w-full bg-yellow-400 text-gray-900 font-semibold py-3 rounded-xl hover:bg-yellow-500 transition text-lg">
+                🔍 Search Boarding
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      {/* ================= WHY US ================= */}
+      <WhyUs />
+
+      {/* ================= STAYS ================= */}
+      <section className="bg-[#173565] py-20">
+        <div className="max-w-7xl mx-auto px-8">
+          <h2 className="text-white text-2xl font-bold mb-10">
+            Stays for you
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+            <StayCard />
+            <StayCard />
+            <StayCard />
+            <StayCard />
+          </div>
+
+          <div className="flex justify-center mt-12"> 
+            <button className="border border-white text-white px-8 py-2 rounded-lg hover:bg-white hover:text-[#173565] transition">
+              View more
             </button>
           </div>
         </div>
-      </div>
-
-      {/* 🔹 WHY US */}
-      <section className="py-12 bg-white">
-        <h2 className="text-3xl font-bold text-center mb-8">Why Us?</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 max-w-6xl mx-auto">
-          {[
-            "Affordable Prices",
-            "Verified Places",
-            "Near Universities",
-            "24/7 Support",
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="bg-gray-100 p-6 rounded-lg text-center shadow"
-            >
-              <div className="text-3xl mb-3">🏠</div>
-              <p className="font-semibold">{item}</p>
-            </div>
-          ))}
-        </div>
       </section>
-
-      {/* 🔹 STAYS FOR YOU */}
-      <section className="py-12 bg-blue-900 text-white">
-        <h2 className="text-3xl font-bold text-center mb-8">
-          Stays for you
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 max-w-6xl mx-auto">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white text-gray-800 rounded-lg shadow">
-              <img
-                src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
-                alt="boarding"
-                className="h-48 w-full object-cover rounded-t-lg"
-              />
-              <div className="p-4">
-                <h3 className="font-bold text-lg">Single Room</h3>
-                <p className="text-sm text-gray-600">Near Sabaragamuwa Uni</p>
-                <p className="font-semibold mt-2">LKR 15,000 / month</p>
-                <button className="mt-3 bg-blue-800 text-white px-4 py-1 rounded hover:bg-blue-700">
-                  View
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 🔹 BOARDING FACILITIES */}
-      <section className="py-12 bg-white">
-        <h2 className="text-3xl font-bold text-center mb-8">
-          Boarding facilities
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 max-w-6xl mx-auto">
-          {["Free WiFi", "Water & Electricity", "Secure Area"].map(
-            (facility, index) => (
-              <div
-                key={index}
-                className="bg-gray-100 p-6 rounded-lg text-center shadow"
-              >
-                <div className="text-3xl mb-3">✔</div>
-                <p className="font-semibold">{facility}</p>
-              </div>
-            )
-          )}
-        </div>
-      </section>
-
-      {/* 🔹 FOOTER */}
-      <footer className="bg-blue-900 text-white py-6">
-        <div className="text-center">
-          <h3 className="text-xl font-bold mb-2">SabraStay</h3>
-          <p className="text-sm">
-            Find reliable boarding places in seconds
-          </p>
-
-          <div className="mt-4 space-x-4">
-            <Link to="/login" className="hover:underline">
-              Login
-            </Link>
-            <Link to="/register" className="hover:underline">
-              Register
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <BoardingFacilities />
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 }
 
-export default Home;
+/* ================= STAT CARD ================= */
+/*function StatCard({ title, value, suffix }) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.5,
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-gray-100 rounded-2xl p-6 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition h-full"
+    >
+      <h3 className="text-4xl font-extrabold text-blue-900">
+        {inView && <CountUp end={value} duration={2} separator="," />}
+        {suffix}
+      </h3>
+      <p className="mt-2 text-gray-600 font-medium">{title}</p>
+    </motion.div>
+  );
+}*/

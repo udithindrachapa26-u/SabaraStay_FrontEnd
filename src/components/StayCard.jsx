@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function StayCard() {
   return (
     <div
@@ -51,13 +53,13 @@ export default function StayCard() {
             <p className="text-gray-500 text-xs">3 bed rooms</p>
           </div>
 
-          <button
+          <Link
+            to="/boarding/1"
             className="bg-blue-700 text-white px-4 py-2 rounded-lg text-xs
-                       transition-all duration-300
-                       hover:bg-blue-800 hover:scale-105"
+                      hover:bg-blue-800 transition"
           >
             Check availability
-          </button>
+          </Link>
         </div>
       </div>
     </div>

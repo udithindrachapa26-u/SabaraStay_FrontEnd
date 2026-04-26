@@ -1,0 +1,173 @@
+import { Link } from "react-router-dom";
+
+export default function BoardingDetails() {
+  return (
+    <div className="min-h-screen bg-gray-100 font-sans">
+
+      {/* ===== HEADER ===== */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <Link
+            to="/home"
+            className="text-sm text-blue-700 font-medium hover:underline"
+          >
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* ===== LEFT SECTION ===== */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* Images */}
+          <div className="grid grid-cols-3 gap-4">
+            <img
+              src="https://images.unsplash.com/photo-1586105251261-72a756497a11"
+              className="col-span-2 h-72 w-full object-cover rounded-xl shadow"
+            />
+            <div className="flex flex-col gap-4">
+              <img
+                src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+                className="h-34 w-full object-cover rounded-xl shadow"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
+                className="h-34 w-full object-cover rounded-xl shadow"
+              />
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Green View Boarding
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Near Sabaragamuwa University
+            </p>
+          </div>
+
+          {/* About */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold text-gray-900 mb-2">
+              About this boarding
+            </h2>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Comfortable and secure boarding place with all essential
+              facilities for students. Peaceful environment and walking
+              distance to university.
+            </p>
+          </div>
+
+          {/* Facilities */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold text-gray-900 mb-4">
+              Facilities
+            </h2>
+
+            <div className="flex flex-wrap gap-3 text-sm">
+              {[
+                "Free Wi-Fi",
+                "Attached Bathroom",
+                "Study Table",
+                "Parking",
+                "24/7 Water",
+                "Security",
+              ].map((item, i) => (
+                <span
+                  key={i}
+                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold text-gray-900 mb-4">
+              Student Reviews
+            </h2>
+
+            {[1, 2, 3].map((_, i) => (
+              <div
+                key={i}
+                className="border-b last:border-b-0 py-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-sm text-gray-800">
+                    Student {i + 1}
+                  </p>
+                  <span className="text-yellow-500 text-sm">★★★★★</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Very comfortable place and friendly owner.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ===== RIGHT SIDEBAR ===== */}
+        <div className="space-y-6">
+
+          {/* Price Card */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <p className="text-gray-500 text-sm">Monthly Rent</p>
+            <h3 className="text-2xl font-bold text-blue-900 mt-1">
+              LKR 8,000
+            </h3>
+
+            <button className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition">
+              Book Boarding
+            </button>
+          </div>
+
+          {/* Owner Info */}
+          <div className="bg-white rounded-xl p-6 shadow text-sm">
+            <h4 className="font-semibold text-gray-900 mb-2">
+              Contact Owner
+            </h4>
+            <p className="text-gray-600">📞 077 123 4567</p>
+            <p className="text-gray-600 mt-1">📍 Belihuloya</p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="bg-[#173565] text-white mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          <div>
+            <h3 className="font-bold text-lg">SabraStay</h3>
+            <p className="text-sm mt-2 opacity-80">
+              Find your perfect boarding place easily.
+            </p>
+          </div>
+
+          <div className="text-sm space-y-1">
+            <p>Home</p>
+            <p>Boardings</p>
+            <p>Contact</p>
+          </div>
+
+          <div>
+            <input
+              placeholder="Your email"
+              className="w-full px-3 py-2 rounded text-gray-800 text-sm"
+            />
+            <button className="mt-2 w-full bg-yellow-400 text-gray-900 py-2 rounded text-sm font-semibold">
+              Subscribe
+            </button>
+          </div>
+
+        </div>
+      </footer>
+    </div>
+  );
+}

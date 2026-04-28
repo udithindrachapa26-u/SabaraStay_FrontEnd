@@ -18,15 +18,18 @@ export default function BoardingDetails() {
     // 2️⃣ Call booking API
     try {
       await createBooking(1); // boarding ID (demo)
-      alert("Booking successful! Owner will contact you.");
+
+      // ✅ SUCCESS → go to success page
+      navigate("/booking-success");
+
     } catch (error) {
+      console.error(error);
       alert("Booking failed. Try again.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-
       {/* ===== HEADER ===== */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -41,10 +44,8 @@ export default function BoardingDetails() {
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         {/* ===== LEFT SIDE ===== */}
         <div className="lg:col-span-2 space-y-6">
-
           {/* Images */}
           <div className="grid grid-cols-3 gap-4">
             <img
@@ -80,8 +81,7 @@ export default function BoardingDetails() {
             </h2>
             <p className="text-sm text-gray-600 leading-relaxed">
               Comfortable and secure boarding place with all essential
-              facilities for students. Peaceful environment and walking
-              distance to university.
+              facilities for students.
             </p>
           </div>
 
@@ -109,32 +109,10 @@ export default function BoardingDetails() {
               ))}
             </div>
           </div>
-
-          {/* Reviews */}
-          <div className="bg-white rounded-xl p-6 shadow">
-            <h2 className="font-semibold text-gray-900 mb-4">
-              Student Reviews
-            </h2>
-
-            {[1, 2, 3].map((_, i) => (
-              <div key={i} className="border-b last:border-b-0 py-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium text-sm text-gray-800">
-                    Student {i + 1}
-                  </p>
-                  <span className="text-yellow-500 text-sm">★★★★★</span>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  Very comfortable place and friendly owner.
-                </p>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* ===== RIGHT SIDEBAR ===== */}
         <div className="space-y-6">
-
           {/* Price + Book */}
           <div className="bg-white rounded-xl p-6 shadow">
             <p className="text-gray-500 text-sm">Monthly Rent</p>
@@ -160,34 +138,6 @@ export default function BoardingDetails() {
           </div>
         </div>
       </div>
-
-      {/* ===== FOOTER ===== */}
-      <footer className="bg-[#173565] text-white mt-20">
-        <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="font-bold text-lg">SabraStay</h3>
-            <p className="text-sm mt-2 opacity-80">
-              Find your perfect boarding place easily.
-            </p>
-          </div>
-
-          <div className="text-sm space-y-1">
-            <p>Home</p>
-            <p>Boardings</p>
-            <p>Contact</p>
-          </div>
-
-          <div>
-            <input
-              placeholder="Your email"
-              className="w-full px-3 py-2 rounded text-gray-800 text-sm"
-            />
-            <button className="mt-2 w-full bg-yellow-400 text-gray-900 py-2 rounded text-sm font-semibold">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

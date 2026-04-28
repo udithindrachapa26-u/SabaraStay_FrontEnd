@@ -1,6 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { createBooking } from "../services/bookingService";
 
 export default function BoardingDetails() {
+  const navigate = useNavigate();
+
+  // ================= BOOK NOW HANDLER =================
+  const handleBookNow = async () => {
+    const token = localStorage.getItem("token");
+
+    // 1️⃣ Login check
+    if (!token) {
+      alert("Booking කිරීමට පෙර Login වන්න");
+      navigate("/login");
+      return;
+    }
+
+    // 2️⃣ Call booking API
+    try {
+      await createBooking(1); // boarding ID (demo)
+      alert("Booking successful! Owner will contact you.");
+    } catch (error) {
+      alert("Booking failed. Try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
 
@@ -11,7 +34,7 @@ export default function BoardingDetails() {
             to="/home"
             className="text-sm text-blue-700 font-medium hover:underline"
           >
-            ← Back to Dashboard
+            ← Back to Home
           </Link>
         </div>
       </div>
@@ -19,7 +42,7 @@ export default function BoardingDetails() {
       {/* ===== MAIN CONTENT ===== */}
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* ===== LEFT SECTION ===== */}
+        {/* ===== LEFT SIDE ===== */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* Images */}
@@ -94,10 +117,7 @@ export default function BoardingDetails() {
             </h2>
 
             {[1, 2, 3].map((_, i) => (
-              <div
-                key={i}
-                className="border-b last:border-b-0 py-4"
-              >
+              <div key={i} className="border-b last:border-b-0 py-4">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-sm text-gray-800">
                     Student {i + 1}
@@ -115,14 +135,17 @@ export default function BoardingDetails() {
         {/* ===== RIGHT SIDEBAR ===== */}
         <div className="space-y-6">
 
-          {/* Price Card */}
+          {/* Price + Book */}
           <div className="bg-white rounded-xl p-6 shadow">
             <p className="text-gray-500 text-sm">Monthly Rent</p>
             <h3 className="text-2xl font-bold text-blue-900 mt-1">
               LKR 8,000
             </h3>
 
-            <button className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition">
+            <button
+              onClick={handleBookNow}
+              className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition"
+            >
               Book Boarding
             </button>
           </div>
@@ -135,14 +158,12 @@ export default function BoardingDetails() {
             <p className="text-gray-600">📞 077 123 4567</p>
             <p className="text-gray-600 mt-1">📍 Belihuloya</p>
           </div>
-
         </div>
       </div>
 
       {/* ===== FOOTER ===== */}
       <footer className="bg-[#173565] text-white mt-20">
         <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-
           <div>
             <h3 className="font-bold text-lg">SabraStay</h3>
             <p className="text-sm mt-2 opacity-80">
@@ -165,7 +186,6 @@ export default function BoardingDetails() {
               Subscribe
             </button>
           </div>
-
         </div>
       </footer>
     </div>

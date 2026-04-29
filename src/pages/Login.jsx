@@ -28,8 +28,20 @@ function Login() {
         throw new Error("Login response did not include user data.");
       }
 
-      localStorage.setItem("token", res.data.token || "");
-      localStorage.setItem("role", res.data.role || "");
+      const token =
+        res.data.token ||
+        res.data.accessToken ||
+        res.data?.user?.token ||
+        res.data?.user?.accessToken ||
+        "";
+      const role =
+        res.data.role ||
+        res.data?.user?.role ||
+        userData.role ||
+        "";
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
       localStorage.setItem("user", JSON.stringify(userData));
 
       alert("Login successful");

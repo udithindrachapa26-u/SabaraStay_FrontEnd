@@ -3,6 +3,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import BoardingDetails from "./pages/BoardingDetails";
+import StudentDashboard from "./pages/StudentDashboard";
 import BookingSuccess from "./pages/BookingSuccess";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/boarding/:id" element={<BoardingDetails />} />
         <Route path="/booking-success" element={<BookingSuccess />} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     </BrowserRouter>

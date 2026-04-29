@@ -60,41 +60,144 @@ export default function StudentDashboard() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-6">Student Dashboard</h1>
+    <main className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <section className="rounded-4xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden">
+          <div className="bg-linear-to-r from-indigo-600 via-sky-600 to-cyan-500 px-8 py-10 sm:px-12 sm:py-12">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-slate-200/80">
+                  Student dashboard
+                </p>
+                <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+                  Welcome back{student?.firstName ? `, ${student.firstName}` : "!"}
+                </h1>
+                <p className="mt-4 max-w-2xl text-slate-100/80 leading-7">
+                  Track your bookings, review your boardings, and stay updated on all your student housing activity in one place.
+                </p>
+              </div>
 
-      {/* STUDENT INFO */}
-      {student && (
-        <div className="bg-white p-5 rounded-lg shadow mb-6">
-          <h2 className="font-semibold text-lg">
-            👋 Welcome {student.firstName}
-          </h2>
-          <p className="text-sm text-gray-600">{student.email}</p>
-        </div>
-      )}
-
-      {/* BOOKINGS */}
-      <div className="bg-white p-5 rounded-lg shadow">
-        <h3 className="font-semibold mb-4">📚 My Bookings</h3>
-
-        {bookings.length === 0 ? (
-          <p className="text-gray-500">No bookings yet</p>
-        ) : (
-          <ul className="space-y-3">
-            {bookings.map((b) => (
-              <li
-                key={b.id}
-                className="border p-3 rounded flex justify-between"
-              >
-                <span>{b.boarding_name}</span>
-                <span className="text-sm font-medium text-blue-700">
-                  {b.status}
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur-xl">
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-200/75">
+                  Account info
+                </p>
+                <p className="mt-4 text-3xl font-semibold text-white">
+                  {student?.firstName || "Student"}
+                </p>
+                <p className="mt-2 text-sm text-slate-200/80">
+                  {student?.email || "Email not available"}
+                </p>
+                <span className="mt-4 inline-flex rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                  {student?.role?.toUpperCase() || "STUDENT"}
                 </span>
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.4fr_0.9fr] lg:px-10 lg:py-10">
+            <section className="space-y-8">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 shadow-inner shadow-black/20">
+                  <p className="text-sm text-slate-400">Total bookings</p>
+                  <p className="mt-3 text-4xl font-bold text-white">{bookings.length}</p>
+                </div>
+                <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 shadow-inner shadow-black/20">
+                  <p className="text-sm text-slate-400">Active status</p>
+                  <p className="mt-3 text-4xl font-bold text-white">
+                    {bookings.filter((b) => b.status?.toLowerCase() === "confirmed").length}
+                  </p>
+                </div>
+              </div>
+
+                <div className="rounded-4xl border border-slate-800 bg-slate-950/95 p-6 shadow-xl">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">My bookings</h2>
+                    <p className="mt-2 text-sm text-slate-400">
+                      Your current boarding reservations and status updates.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-sm font-semibold text-cyan-300">
+                    {bookings.length} record{bookings.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                {bookings.length === 0 ? (
+                  <div className="mt-8 rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
+                    No bookings yet. Start browsing stays to reserve your next boarding.
+                  </div>
+                ) : (
+                  <div className="mt-6 space-y-4">
+                    {bookings.map((b) => (
+                      <article
+                        key={b.id}
+                        className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 transition hover:-translate-y-0.5 hover:bg-slate-900"
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">
+                              {b.boarding_name || "Untitled boarding"}
+                            </h3>
+                            <p className="mt-2 text-sm text-slate-400">
+                              {b.location || b.address || "Location not provided"}
+                            </p>
+                          </div>
+                          <span className="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-cyan-300">
+                            {b.status || "Pending"}
+                          </span>
+                        </div>
+                        {b.check_in_date || b.start_date ? (
+                          <p className="mt-4 text-sm text-slate-500">
+                            {`Check-in: ${b.check_in_date || b.start_date}`}
+                          </p>
+                        ) : null}
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <aside className="space-y-6">
+              <div className="rounded-4xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl">
+                <h2 className="text-xl font-semibold text-white">Quick overview</h2>
+                <p className="mt-3 text-sm text-slate-400">
+                  Use this dashboard to stay on top of your active bookings and manage your student housing preferences.
+                </p>
+                <div className="mt-6 grid gap-3">
+                  <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Profile</p>
+                    <p className="mt-1">{student?.firstName || "-"} {student?.lastName || ""}</p>
+                  </div>
+                  <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Email</p>
+                    <p className="mt-1 break-all">{student?.email || "-"}</p>
+                  </div>
+                  <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Membership</p>
+                    <p className="mt-1">Student</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-4xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl">
+                <h2 className="text-xl font-semibold text-white">Need help?</h2>
+                <p className="mt-3 text-sm text-slate-400">
+                  If you have questions about your boarding or booking status, reach out to support or check the boarding details page.
+                </p>
+                <div className="mt-6 space-y-3">
+                  <button className="w-full rounded-3xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
+                    Contact support
+                  </button>
+                  <button className="w-full rounded-3xl border border-slate-700 bg-transparent px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-slate-500">
+                    Browse boardings
+                  </button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

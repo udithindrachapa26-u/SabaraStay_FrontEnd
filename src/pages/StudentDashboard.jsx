@@ -2,10 +2,90 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
+const getUserFirstName = (user) => {
+  if (!user) return "";
+  return (
+    user.firstName ||
+    user.firstname ||
+    user.first_name ||
+    user.name ||
+    user.fullName ||
+    user.full_name ||
+    ""
+  );
+};
+
+const getUserLastName = (user) => {
+  if (!user) return "";
+  return user.lastName || user.lastname || user.last_name || "";
+};
+
+const normalizeStudentResponse = (data) => {
+  if (!data) return null;
+  return data.user || data.student || data;
+};
+
+const normalizeArrayResponse = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.bookings)) return data.bookings;
+  if (Array.isArray(data.appointments)) return data.appointments;
+  return [];
+};
+
+const getBookingTitle = (booking) =>
+  booking.boarding_name ||
+  booking.boardingName ||
+  booking.boarding?.boardingName ||
+  booking.boarding?.boarding_name ||
+  booking.boarding?.name ||
+  booking.name ||
+  "Untitled boarding";
+
+const getBookingLocation = (booking) =>
+  booking.location ||
+  booking.address ||
+  booking.boarding?.address ||
+  booking.boarding?.location ||
+  booking.boarding_address ||
+  "Location not provided";
+
+const getBookingStatus = (booking) => booking.status || booking.booking_status || booking.statusText || "Pending";
+
+const getBookingCheckIn = (booking) =>
+  booking.check_in_date || booking.start_date || booking.startDate || booking.bookingDate || booking.appointmentDate || "";
+
+const getAppointmentTitle = (appointment) =>
+  appointment.boarding_name ||
+  appointment.boardingName ||
+  appointment.boarding?.boardingName ||
+  appointment.boarding?.boarding_name ||
+  appointment.boarding?.name ||
+  appointment.name ||
+  "Boarding appointment";
+
+const getAppointmentDate = (appointment) =>
+  appointment.appointmentDate ||
+  appointment.appointment_date ||
+  appointment.date ||
+  appointment.start_date ||
+  "Date not available";
+
+const getAppointmentTime = (appointment) =>
+  appointment.appointmentTime ||
+  appointment.appointment_time ||
+  appointment.time ||
+  "Time not available";
+
+const getAppointmentStatus = (appointment) =>
+  appointment.status || appointment.appointment_status || "Scheduled";
+
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,32 +104,28 @@ export default function StudentDashboard() {
       }
     }
 
-    // 👤 Get student profile if we don't already have it cached
-    if (!storedUser) {
-      api
-        .get("/students/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => setStudent(res.data))
-        .catch((error) => {
-          if (error.response?.status === 401 || error.response?.status === 403) {
-            navigate("/login");
-          } else {
-            console.error("Failed to load student profile:", error);
-          }
-        });
-    }
+    api
+      .get("/students/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setStudent(normalizeStudentResponse(res.data)))
+      .catch((error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          navigate("/login");
+        } else {
+          console.error("Failed to load student profile:", error);
+        }
+      });
 
-    // 📚 Get my bookings
     api
       .get("/bookings/my", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => setBookings(res.data))
+      .then((res) => setBookings(normalizeArrayResponse(res.data)))
       .catch((error) => {
         if (error.response?.status === 401 || error.response?.status === 403) {
           navigate("/login");
@@ -57,7 +133,28 @@ export default function StudentDashboard() {
           console.error("Failed to load bookings:", error);
         }
       });
+
+    api
+      .get("/appointments/my", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setAppointments(normalizeArrayResponse(res.data)))
+      .catch((error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          navigate("/login");
+        } else if (error.response?.status !== 404) {
+          console.error("Failed to load appointments:", error);
+        }
+      });
   }, [navigate]);
+
+  const fullName = `${getUserFirstName(student)} ${getUserLastName(student)}`.trim();
+  const bookingCount = bookings.length;
+  const confirmedCount = bookings.filter(
+    (booking) => getBookingStatus(booking).toLowerCase() === "confirmed"
+  ).length;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-10">
@@ -70,7 +167,7 @@ export default function StudentDashboard() {
                   Student dashboard
                 </p>
                 <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
-                  Welcome back{student?.firstName ? `, ${student.firstName}` : "!"}
+                  Welcome back{fullName ? `, ${fullName}` : "!"}
                 </h1>
                 <p className="mt-4 max-w-2xl text-slate-100/80 leading-7">
                   Track your bookings, review your boardings, and stay updated on all your student housing activity in one place.
@@ -78,17 +175,11 @@ export default function StudentDashboard() {
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur-xl">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-200/75">
-                  Account info
-                </p>
-                <p className="mt-4 text-3xl font-semibold text-white">
-                  {student?.firstName || "Student"}
-                </p>
-                <p className="mt-2 text-sm text-slate-200/80">
-                  {student?.email || "Email not available"}
-                </p>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-200/75">Account info</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{getUserFirstName(student) || "Student"}</p>
+                <p className="mt-2 text-sm text-slate-200/80">{student?.email || student?.Email || "Email not available"}</p>
                 <span className="mt-4 inline-flex rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                  {student?.role?.toUpperCase() || "STUDENT"}
+                  {(student?.role || localStorage.getItem("role") || "student").toString().toUpperCase()}
                 </span>
               </div>
             </div>
@@ -99,13 +190,11 @@ export default function StudentDashboard() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 shadow-inner shadow-black/20">
                   <p className="text-sm text-slate-400">Total bookings</p>
-                  <p className="mt-3 text-4xl font-bold text-white">{bookings.length}</p>
+                  <p className="mt-3 text-4xl font-bold text-white">{bookingCount}</p>
                 </div>
                 <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 shadow-inner shadow-black/20">
-                  <p className="text-sm text-slate-400">Active status</p>
-                  <p className="mt-3 text-4xl font-bold text-white">
-                    {bookings.filter((b) => b.status?.toLowerCase() === "confirmed").length}
-                  </p>
+                  <p className="text-sm text-slate-400">Confirmed bookings</p>
+                  <p className="mt-3 text-4xl font-bold text-white">{confirmedCount}</p>
                 </div>
               </div>
 
@@ -118,39 +207,70 @@ export default function StudentDashboard() {
                     </p>
                   </div>
                   <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-sm font-semibold text-cyan-300">
-                    {bookings.length} record{bookings.length !== 1 ? "s" : ""}
+                    {bookingCount} record{bookingCount !== 1 ? "s" : ""}
                   </span>
                 </div>
 
-                {bookings.length === 0 ? (
+                {bookingCount === 0 ? (
                   <div className="mt-8 rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
                     No bookings yet. Start browsing stays to reserve your next boarding.
                   </div>
                 ) : (
                   <div className="mt-6 space-y-4">
-                    {bookings.map((b) => (
+                    {bookings.map((booking) => (
                       <article
-                        key={b.id}
+                        key={booking.id || booking.bookingId || `${booking.boarding_id}-${booking.id}`}
                         className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 transition hover:-translate-y-0.5 hover:bg-slate-900"
                       >
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                           <div>
-                            <h3 className="text-lg font-semibold text-white">
-                              {b.boarding_name || "Untitled boarding"}
-                            </h3>
-                            <p className="mt-2 text-sm text-slate-400">
-                              {b.location || b.address || "Location not provided"}
-                            </p>
+                            <h3 className="text-lg font-semibold text-white">{getBookingTitle(booking)}</h3>
+                            <p className="mt-2 text-sm text-slate-400">{getBookingLocation(booking)}</p>
                           </div>
                           <span className="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-cyan-300">
-                            {b.status || "Pending"}
+                            {getBookingStatus(booking)}
                           </span>
                         </div>
-                        {b.check_in_date || b.start_date ? (
-                          <p className="mt-4 text-sm text-slate-500">
-                            {`Check-in: ${b.check_in_date || b.start_date}`}
-                          </p>
+                        {getBookingCheckIn(booking) ? (
+                          <p className="mt-4 text-sm text-slate-500">{`Check-in: ${getBookingCheckIn(booking)}`}</p>
                         ) : null}
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-4xl border border-slate-800 bg-slate-950/95 p-6 shadow-xl">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">My appointments</h2>
+                    <p className="mt-2 text-sm text-slate-400">Upcoming or past appointments for boarding visits.</p>
+                  </div>
+                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-sm font-semibold text-cyan-300">
+                    {appointments.length} record{appointments.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                {appointments.length === 0 ? (
+                  <div className="mt-8 rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
+                    No appointment records yet. Schedule a visit to see available boardings.
+                  </div>
+                ) : (
+                  <div className="mt-6 space-y-4">
+                    {appointments.map((appointment) => (
+                      <article
+                        key={appointment.appointmentID || appointment.id || `${appointment.studentID}-${getAppointmentDate(appointment)}`}
+                        className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 transition hover:-translate-y-0.5 hover:bg-slate-900"
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{getAppointmentTitle(appointment)}</h3>
+                            <p className="mt-2 text-sm text-slate-400">{`${getAppointmentDate(appointment)} • ${getAppointmentTime(appointment)}`}</p>
+                          </div>
+                          <span className="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-cyan-300">
+                            {getAppointmentStatus(appointment)}
+                          </span>
+                        </div>
                       </article>
                     ))}
                   </div>
@@ -167,15 +287,15 @@ export default function StudentDashboard() {
                 <div className="mt-6 grid gap-3">
                   <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
                     <p className="font-semibold text-white">Profile</p>
-                    <p className="mt-1">{student?.firstName || "-"} {student?.lastName || ""}</p>
+                    <p className="mt-1">{fullName || "-"}</p>
                   </div>
                   <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
                     <p className="font-semibold text-white">Email</p>
-                    <p className="mt-1 break-all">{student?.email || "-"}</p>
+                    <p className="mt-1 break-all">{student?.email || student?.Email || "-"}</p>
                   </div>
                   <div className="rounded-3xl bg-slate-950/90 p-4 text-sm text-slate-300">
-                    <p className="font-semibold text-white">Membership</p>
-                    <p className="mt-1">Student</p>
+                    <p className="font-semibold text-white">Contact</p>
+                    <p className="mt-1">{student?.contactNo || student?.contact || student?.contact_no || "-"}</p>
                   </div>
                 </div>
               </div>

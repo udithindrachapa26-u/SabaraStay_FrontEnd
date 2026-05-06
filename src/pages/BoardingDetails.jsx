@@ -1,30 +1,83 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { createBooking } from "../services/bookingService";
+import { addReview, getReviews } from "../services/reviewService";
 
 export default function BoardingDetails() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const boardingId = Number(id);
 
-  // ================= BOOK NOW HANDLER =================
+  // ================= STATE =================
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [reviews, setReviews] = useState([]);
+
+  // ================= LOAD REVIEWS =================
+  useEffect(() => {
+    if (!boardingId || Number.isNaN(boardingId)) return;
+    loadReviews();
+  }, [boardingId]);
+
+  const loadReviews = async () => {
+    try {
+      const res = await getReviews(boardingId);
+      setReviews(res.data);
+    } catch (err) {
+      console.error("Failed to load reviews", err);
+    }
+  };
+
+  // ================= BOOK NOW =================
   const handleBookNow = async () => {
     const token = localStorage.getItem("token");
 
-    // 1️⃣ Login check
     if (!token) {
       alert("Booking කිරීමට පෙර Login වන්න");
       navigate("/login");
       return;
     }
 
-    // 2️⃣ Call booking API
     try {
-      await createBooking(1); // boarding ID (demo)
-
-      // ✅ SUCCESS → go to success page
+      await createBooking(boardingId);
       navigate("/booking-success");
-
     } catch (error) {
       console.error(error);
       alert("Booking failed. Try again.");
+    }
+  };
+
+  // ================= ADD REVIEW =================
+  const handleAddReview = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Review add කිරීමට Login වන්න");
+      navigate("/login");
+      return;
+    }
+
+    if (!comment) {
+      alert("Comment එකක් enter කරන්න");
+      return;
+    }
+
+    try {
+      await addReview({
+        boardingId,
+        rating: Number(rating),
+        comment,
+      });
+
+      alert("Review added successfully!");
+      setComment("");
+      setRating(5);
+      loadReviews(); // reload reviews
+    } catch (err) {
+      console.error("Review add failed", err);
+      alert(
+        err.response?.data?.message || err.message || "Review add failed"
+      );
     }
   };
 
@@ -44,8 +97,10 @@ export default function BoardingDetails() {
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
         {/* ===== LEFT SIDE ===== */}
         <div className="lg:col-span-2 space-y-6">
+
           {/* Images */}
           <div className="grid grid-cols-3 gap-4">
             <img
@@ -79,7 +134,7 @@ export default function BoardingDetails() {
             <h2 className="font-semibold text-gray-900 mb-2">
               About this boarding
             </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600">
               Comfortable and secure boarding place with all essential
               facilities for students.
             </p>
@@ -109,11 +164,60 @@ export default function BoardingDetails() {
               ))}
             </div>
           </div>
+
+          {/* ===== ADD REVIEW ===== */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold mb-4">⭐ Add Your Review</h2>
+
+            <select
+              value={rating}
+              onChange={(e) => setRating(Number(e.target.value))}
+              className="border rounded p-2 w-full mb-3"
+            >
+              {[5, 4, 3, 2, 1].map((r) => (
+                <option key={r} value={r}>
+                  {r} Stars
+                </option>
+              ))}
+            </select>
+
+            <textarea
+              placeholder="Write your review..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="border rounded p-2 w-full mb-3"
+            />
+
+            <button
+              onClick={handleAddReview}
+              className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+            >
+              Submit Review
+            </button>
+          </div>
+
+          {/* ===== REVIEWS LIST ===== */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold mb-4">🗣 Student Reviews</h2>
+
+            {reviews.length === 0 ? (
+              <p className="text-gray-500">No reviews yet</p>
+            ) : (
+              reviews.map((r) => (
+                <div key={r.reviewID} className="border-b py-3">
+                  <p className="font-medium">{r.firstName}</p>
+                  <p className="text-yellow-500">
+                    {"★".repeat(r.rating)}
+                  </p>
+                  <p className="text-sm text-gray-600">{r.comment}</p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* ===== RIGHT SIDEBAR ===== */}
         <div className="space-y-6">
-          {/* Price + Book */}
           <div className="bg-white rounded-xl p-6 shadow">
             <p className="text-gray-500 text-sm">Monthly Rent</p>
             <h3 className="text-2xl font-bold text-blue-900 mt-1">
@@ -122,19 +226,10 @@ export default function BoardingDetails() {
 
             <button
               onClick={handleBookNow}
-              className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition"
+              className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800"
             >
               Book Boarding
             </button>
-          </div>
-
-          {/* Owner Info */}
-          <div className="bg-white rounded-xl p-6 shadow text-sm">
-            <h4 className="font-semibold text-gray-900 mb-2">
-              Contact Owner
-            </h4>
-            <p className="text-gray-600">📞 077 123 4567</p>
-            <p className="text-gray-600 mt-1">📍 Belihuloya</p>
           </div>
         </div>
       </div>

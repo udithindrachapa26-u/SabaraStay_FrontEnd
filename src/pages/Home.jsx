@@ -1,14 +1,14 @@
+import { useNavigate } from "react-router-dom";
+
 import Navbar from "../components/common/Navbar";
 import WhyUs from "../components/WhyUs";
 import StayCard from "../components/StayCard";
 import BoardingFacilities from "../components/BoardingFacilities";
 import Footer from "../components/common/Footer";
 
-/*import { motion } from "framer-motion";
-import CountUp from "react-countup";
-import { useInView } from "react-intersection-observer";*/
-
 export default function Home() {
+  const navigate = useNavigate(); // ✅ ADD
+
   return (
     <div className="font-sans overflow-x-hidden">
 
@@ -35,9 +35,17 @@ export default function Home() {
               { icon: "🛏️", label: "Short Term" },
               { icon: "🏠", label: "Long Term" },
               { icon: "🎓", label: "For Lecturers" },
-              { icon: "📍", label: "List Property" },
+              {
+                icon: "📍",
+                label: "List Property",
+                action: () => navigate("/list-property"), // ✅ ADD
+              },
             ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center group cursor-pointer">
+              <div
+                key={i}
+                onClick={item.action} // ✅ ADD (only works for List Property)
+                className="flex flex-col items-center group cursor-pointer"
+              >
                 <div className="w-16 h-16 bg-yellow-400 rounded-xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
                   {item.icon}
                 </div>
@@ -101,40 +109,16 @@ export default function Home() {
             <StayCard />
           </div>
 
-          <div className="flex justify-center mt-12"> 
+          <div className="flex justify-center mt-12">
             <button className="border border-white text-white px-8 py-2 rounded-lg hover:bg-white hover:text-[#173565] transition">
               View more
             </button>
           </div>
         </div>
       </section>
+
       <BoardingFacilities />
-      {/* FOOTER */}
       <Footer />
     </div>
   );
 }
-
-/* ================= STAT CARD ================= */
-/*function StatCard({ title, value, suffix }) {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.5,
-  });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-100 rounded-2xl p-6 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition h-full"
-    >
-      <h3 className="text-4xl font-extrabold text-blue-900">
-        {inView && <CountUp end={value} duration={2} separator="," />}
-        {suffix}
-      </h3>
-      <p className="mt-2 text-gray-600 font-medium">{title}</p>
-    </motion.div>
-  );
-}*/

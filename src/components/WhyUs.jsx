@@ -26,8 +26,11 @@ export default function WhyUs() {
     },
   ];
 
+  // duplicate items for seamless loop
+  const sliderItems = [...items, ...items];
+
   return (
-    <section className="bg-gradient-to-b from-white to-gray-100 py-24">
+    <section className="bg-linear-to-b from-white to-gray-100 py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
 
         {/* Title */}
@@ -41,31 +44,51 @@ export default function WhyUs() {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="group backdrop-blur-xl bg-white/70 border border-white/30 rounded-2xl p-8 text-center shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
-            >
-              {/* Icon */}
+        {/* Slider Wrapper */}
+        <div className="relative overflow-hidden">
+          <div className="flex gap-8 slider-track hover:[animation-play-state:paused]">
+            {sliderItems.map((item, index) => (
               <div
-                className={`w-16 h-16 mx-auto flex items-center justify-center rounded-xl bg-gradient-to-br ${item.color} text-2xl shadow-md group-hover:scale-110 transition`}
+                key={index}
+                className="min-w-[280px] group backdrop-blur-xl bg-white/70 border border-white/30 rounded-2xl p-8 text-center shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
               >
-                {item.icon}
-              </div>
+                {/* Icon */}
+                <div
+                  className={`w-16 h-16 mx-auto flex items-center justify-center rounded-xl bg-linear-to-br ${item.color} text-2xl shadow-md transition duration-500 group-hover:scale-110 group-hover:shadow-xl`}
+                >
+                  {item.icon}
+                </div>
 
-              {/* Text */}
-              <h3 className="mt-6 font-semibold text-lg text-gray-800">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
+                {/* Text */}
+                <h3 className="mt-6 font-semibold text-lg text-gray-800">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        .slider-track {
+          width: max-content;
+          animation: slide 25s linear infinite;
+        }
+
+        @keyframes slide {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </section>
   );
 }

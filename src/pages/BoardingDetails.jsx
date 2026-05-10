@@ -8,12 +8,12 @@ export default function BoardingDetails() {
   const { id } = useParams();
   const boardingId = Number(id);
 
-  // ================= STATE =================
+  // STATE
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [reviews, setReviews] = useState([]);
 
-  // ================= LOAD REVIEWS =================
+  // LOAD REVIEWS
   useEffect(() => {
     if (!boardingId || Number.isNaN(boardingId)) return;
     loadReviews();
@@ -28,7 +28,7 @@ export default function BoardingDetails() {
     }
   };
 
-  // ================= BOOK NOW =================
+  // BOOK NOW
   const handleBookNow = async () => {
     const token = localStorage.getItem("token");
 
@@ -47,7 +47,7 @@ export default function BoardingDetails() {
     }
   };
 
-  // ================= ADD REVIEW =================
+  // ADD REVIEW
   const handleAddReview = async () => {
     const token = localStorage.getItem("token");
 
@@ -83,7 +83,7 @@ export default function BoardingDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link
@@ -95,10 +95,10 @@ export default function BoardingDetails() {
         </div>
       </div>
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* ===== LEFT SIDE ===== */}
+        {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* Images */}
@@ -165,7 +165,7 @@ export default function BoardingDetails() {
             </div>
           </div>
 
-          {/* ===== ADD REVIEW ===== */}
+          {/* ADD REVIEW */}
           <div className="bg-white rounded-xl p-6 shadow">
             <h2 className="font-semibold mb-4">⭐ Add Your Review</h2>
 
@@ -196,7 +196,7 @@ export default function BoardingDetails() {
             </button>
           </div>
 
-          {/* ===== REVIEWS LIST ===== */}
+          {/* REVIEWS LIST */}
           <div className="bg-white rounded-xl p-6 shadow">
             <h2 className="font-semibold mb-4">🗣 Student Reviews</h2>
 
@@ -216,7 +216,7 @@ export default function BoardingDetails() {
           </div>
         </div>
 
-        {/* ===== RIGHT SIDEBAR ===== */}
+        {/* RIGHT SIDEBAR */}
         <div className="space-y-6">
           <div className="bg-white rounded-xl p-6 shadow">
             <p className="text-gray-500 text-sm">Monthly Rent</p>

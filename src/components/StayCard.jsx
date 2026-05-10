@@ -29,7 +29,7 @@ export default function StayCard() {
       {/* Content */}
       <div className="p-5 text-gray-800 text-sm">
         <h3 className="font-semibold text-base">
-          Jayami girl's boarding house
+          Green view boarding house
         </h3>
 
         {/* Rating */}

@@ -18,8 +18,8 @@ export default function BookingSuccess() {
 
         {/* Message */}
         <p className="text-gray-600 text-sm mt-3 leading-relaxed">
-          ඔබගේ booking එක සාර්ථකව submit කර ඇත.  
-          Boarding owner ඉක්මනින් ඔබව contact කරනු ඇත.
+          Your booking is submited successfully.  
+          Boarding owner will contact you soon.
         </p>
 
         {/* Buttons */}

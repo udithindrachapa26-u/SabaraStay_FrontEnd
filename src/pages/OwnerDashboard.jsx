@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "../common/Navbar";
-import SubNav from "./SubNav";
+import SubNav from "./owner dashboard/SubNav";
 import Footer from "../common/footer";
 
 // Pages
-import AppointmentManagement from "./appointmentManagement";
+import AppointmentManagement from "./owner dashboard/appointmentManagement";
 import ApproveRequestPage from "./approve request/approveRequest";
 // import AddListingPage     from "./pages/AddListingPage";
 // import NotificationPage   from "./pages/NotificationPage";

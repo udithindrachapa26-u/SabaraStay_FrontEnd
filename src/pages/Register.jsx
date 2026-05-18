@@ -7,16 +7,39 @@ function Register() {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
     contactNo: "",
     role: "student",
   });
+  const [formError, setFormError] = useState("");
+
+  const passwordCriteria = [
+    { label: "At least 8 characters", valid: formData.password.length >= 8 },
+    { label: "Uppercase and lowercase letters", valid: /(?=.*[a-z])(?=.*[A-Z])/.test(formData.password) },
+    { label: "At least one number", valid: /(?=.*\d)/.test(formData.password) },
+    { label: "At least one special symbol", valid: /(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/.test(formData.password) },
+  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (formError) setFormError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords do not match.");
+      return;
+    }
+
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!passwordPattern.test(formData.password)) {
+      setFormError(
+        "Password must be 8+ characters and include uppercase, lowercase, number, and symbol."
+      );
+      return;
+    }
+
     try {
       const res = await registerUser(formData);
       alert(res.data.message);
@@ -28,7 +51,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
@@ -113,7 +136,46 @@ function Register() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
               required
             />
+            <p className="text-sm text-gray-500 mt-2">
+              Use a strong password with uppercase, lowercase, numbers and symbols.
+            </p>
+            <ul className="mt-3 grid gap-1 text-sm">
+              {passwordCriteria.map((item) => (
+                <li
+                  key={item.label}
+                  className={
+                    item.valid
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                  }
+                >
+                  {item.valid ? "✓" : "•"} {item.label}
+                </li>
+              ))}
+            </ul>
           </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Re-enter your password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              required
+            />
+          </div>
+
+          {formError && (
+            <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+              {formError}
+            </div>
+          )}
 
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">

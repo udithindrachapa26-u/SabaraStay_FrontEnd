@@ -134,7 +134,7 @@ function Login() {
               to="/register"
               className="text-blue-600 font-bold hover:text-blue-700 transition"
             >
-              Create one now
+              Create one
             </Link>
           </p>
         </div>

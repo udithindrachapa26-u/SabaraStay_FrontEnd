@@ -17,9 +17,11 @@ export default function ListProperty() {
   });
 
   const [photos, setPhotos] = useState([]);
+  const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (formFeedback.message) setFormFeedback({ message: "", type: "" });
   };
 
   const handleSubmit = async (e) => {
@@ -30,24 +32,24 @@ export default function ListProperty() {
     const role = localStorage.getItem("role");
 
     if (!token) {
-      alert("Please log in first");
+      setFormFeedback({ message: "Please log in first.", type: "error" });
       navigate("/login");
       return;
     }
 
     if (role !== "owner") {
-      alert("Only boarding owners can list properties");
+      setFormFeedback({ message: "Only boarding owners can list properties.", type: "error" });
       return;
     }
 
     // Basic validation
     if (!form.boardingName || !form.boardingType || !form.address || !form.price || !form.totalRooms || !form.availableSpace || !form.description || !form.distance) {
-      alert("Please fill in all required fields");
+      setFormFeedback({ message: "Please fill in all required fields.", type: "error" });
       return;
     }
 
     if (photos.length === 0) {
-      alert("Please upload at least one photo");
+      setFormFeedback({ message: "Please upload at least one photo.", type: "error" });
       return;
     }
 
@@ -68,12 +70,12 @@ export default function ListProperty() {
         },
       });
 
-      alert("Boarding listed successfully");
-      navigate("/");
+      setFormFeedback({ message: "Boarding listed successfully.", type: "success" });
+      setTimeout(() => navigate("/"), 700);
     } catch (err) {
       console.error("Error listing property:", err);
       const errorMessage = err.response?.data?.message || err.message || "Failed to list property";
-      alert(`Error: ${errorMessage}`);
+      setFormFeedback({ message: `Error: ${errorMessage}`, type: "error" });
     }
   };
 
@@ -86,6 +88,18 @@ export default function ListProperty() {
         <h1 className="text-2xl font-bold text-yellow-400">
           List Your Boarding
         </h1>
+
+        {formFeedback.message && (
+          <div
+            className={
+              formFeedback.type === "success"
+                ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900"
+                : "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-900"
+            }
+          >
+            {formFeedback.message}
+          </div>
+        )}
 
         <input name="boardingName" onChange={handleChange} placeholder="Boarding Name" className="input" />
         <input name="boardingType" onChange={handleChange} placeholder="Type (Male/Female/Mixed)" className="input" />

@@ -7,6 +7,7 @@ function Login() {
     email: "",
     password: "",
   });
+  const [feedback, setFeedback] = useState({ message: "", type: "" });
 
   const navigate = useNavigate();
 
@@ -44,12 +45,12 @@ function Login() {
       localStorage.setItem("role", role);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      alert("Login successful");
-      navigate("/home");
+      setFeedback({ message: "Login successful", type: "success" });
+      setTimeout(() => navigate("/home"), 500);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Invalid email or password";
-      alert(errorMessage);
+      setFeedback({ message: errorMessage, type: "error" });
     }
   };
 
@@ -71,6 +72,18 @@ function Login() {
           </h2>
           <p className="text-gray-600 text-sm">Sign in to your account to continue</p>
         </div>
+
+        {feedback.message && (
+          <div
+            className={
+              feedback.type === "success"
+                ? "mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900"
+                : "mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-900"
+            }
+          >
+            {feedback.message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
 

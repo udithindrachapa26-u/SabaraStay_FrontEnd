@@ -11,7 +11,7 @@ function Register() {
     contactNo: "",
     role: "student",
   });
-  const [formError, setFormError] = useState("");
+  const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
 
   const passwordCriteria = [
     { label: "At least 8 characters", valid: formData.password.length >= 8 },
@@ -22,30 +22,41 @@ function Register() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (formError) setFormError("");
+    if (formFeedback.message) setFormFeedback({ message: "", type: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setFormError("Passwords do not match.");
+      setFormFeedback({ message: "Passwords do not match.", type: "error" });
       return;
     }
 
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
     if (!passwordPattern.test(formData.password)) {
-      setFormError(
-        "Password must be 8+ characters and include uppercase, lowercase, number, and symbol."
-      );
+      setFormFeedback({
+        message:
+          "Password must be 8+ characters and include uppercase, lowercase, number, and symbol.",
+        type: "error",
+      });
       return;
     }
 
     try {
       const res = await registerUser(formData);
-      alert(res.data.message);
+      setFormFeedback({ message: res.data.message || "Account created successfully.", type: "success" });
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        contactNo: "",
+        role: "student",
+      });
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || "Register failed";
-      alert("Error: " + errorMessage);
+      setFormFeedback({ message: errorMessage, type: "error" });
       console.error("Registration error:", err);
     }
   };
@@ -171,9 +182,15 @@ function Register() {
             />
           </div>
 
-          {formError && (
-            <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
-              {formError}
+          {formFeedback.message && (
+            <div
+              className={
+                formFeedback.type === "success"
+                  ? "rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 px-4 py-3 text-sm"
+                  : "rounded-lg border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
+              }
+            >
+              {formFeedback.message}
             </div>
           )}
 

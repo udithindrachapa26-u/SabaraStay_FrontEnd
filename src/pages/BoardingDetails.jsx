@@ -12,6 +12,7 @@ export default function BoardingDetails() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [reviews, setReviews] = useState([]);
+  const [feedback, setFeedback] = useState({ message: "", type: "" });
 
   // LOAD REVIEWS
   useEffect(() => {
@@ -33,17 +34,18 @@ export default function BoardingDetails() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Booking කිරීමට පෙර Login වන්න");
+      setFeedback({ message: "Please log in before booking.", type: "error" });
       navigate("/login");
       return;
     }
 
     try {
       await createBooking(boardingId);
-      navigate("/booking-success");
+      setFeedback({ message: "Booking confirmed! Redirecting to success page...", type: "success" });
+      setTimeout(() => navigate("/booking-success"), 600);
     } catch (error) {
       console.error(error);
-      alert("Booking failed. Try again.");
+      setFeedback({ message: "Booking failed. Please try again.", type: "error" });
     }
   };
 
@@ -52,13 +54,13 @@ export default function BoardingDetails() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Review add කිරීමට Login වන්න");
+      setFeedback({ message: "Please log in to add a review.", type: "error" });
       navigate("/login");
       return;
     }
 
     if (!comment) {
-      alert("Comment එකක් enter කරන්න");
+      setFeedback({ message: "Please enter a comment before submitting.", type: "error" });
       return;
     }
 
@@ -69,15 +71,17 @@ export default function BoardingDetails() {
         comment,
       });
 
-      alert("Review added successfully!");
+      setFeedback({ message: "Review added successfully!", type: "success" });
       setComment("");
       setRating(5);
       loadReviews(); // reload reviews
     } catch (err) {
       console.error("Review add failed", err);
-      alert(
-        err.response?.data?.message || err.message || "Review add failed"
-      );
+      setFeedback({
+        message:
+          err.response?.data?.message || err.message || "Review add failed",
+        type: "error",
+      });
     }
   };
 
@@ -94,6 +98,18 @@ export default function BoardingDetails() {
           </Link>
         </div>
       </div>
+
+      {feedback.message && (
+        <div
+          className={
+            feedback.type === "success"
+              ? "mx-auto mt-6 max-w-7xl px-6 rounded-2xl border border-emerald-200 bg-emerald-50 py-4 text-emerald-900 shadow-sm"
+              : "mx-auto mt-6 max-w-7xl px-6 rounded-2xl border border-red-200 bg-red-50 py-4 text-red-900 shadow-sm"
+          }
+        >
+          {feedback.message}
+        </div>
+      )}
 
       {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">

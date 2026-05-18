@@ -116,6 +116,15 @@ function Login() {
             Sign In
           </button>
 
+          <div className="text-right">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
         </form>
 
         <div className="mt-8 pt-6 border-t border-gray-200">

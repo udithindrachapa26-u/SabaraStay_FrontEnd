@@ -101,13 +101,13 @@ export default function ListProperty() {
           </div>
         )}
 
-        <input name="boardingName" onChange={handleChange} placeholder="Boarding Name" className="input" />
-        <input name="boardingType" onChange={handleChange} placeholder="Type (Male/Female/Mixed)" className="input" />
-        <input name="address" onChange={handleChange} placeholder="Address" className="input" />
-        <input name="price" type="number" onChange={handleChange} placeholder="Price" className="input" />
-        <input name="totalRooms" type="number" onChange={handleChange} placeholder="Total Rooms" className="input" />
-        <input name="availableSpace" type="number" onChange={handleChange} placeholder="Available Space" className="input" />
-        <input name="distance" type="number" step="0.1" onChange={handleChange} placeholder="Distance (km)" className="input" />
+        <input name="boardingName" onChange={handleChange} placeholder="Boarding Name*" className="input" />
+        <input name="boardingType" onChange={handleChange} placeholder="Type (Male/Female/Mixed)*" className="input" />
+        <input name="address" onChange={handleChange} placeholder="Address*" className="input" />
+        <input name="price" type="number" onChange={handleChange} placeholder="Monthly rate (Rs)*" className="input" />
+        <input name="totalRooms" type="number" onChange={handleChange} placeholder="Total Rooms*" className="input" />
+        <input name="availableSpace" type="number" onChange={handleChange} placeholder="Available Space*" className="input" />
+        <input name="distance" type="number" step="0.1" onChange={handleChange} placeholder="Distance from uni (km)*" className="input" />
 
         <textarea name="description" onChange={handleChange} placeholder="Description" className="input h-24" />
 

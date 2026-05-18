@@ -37,7 +37,7 @@ export default function Home() {
               { icon: "🎓", label: "For Lecturers" },
               {
                 icon: "📍",
-                label: "List Property",
+                label: "Add Property",
                 action: () => navigate("/list-property"), // ✅ ADD
               },
             ].map((item, i) => (

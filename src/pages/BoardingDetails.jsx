@@ -13,6 +13,7 @@ export default function BoardingDetails() {
   const [comment, setComment] = useState("");
   const [reviews, setReviews] = useState([]);
   const [feedback, setFeedback] = useState({ message: "", type: "" });
+  const [showBookingConfirm, setShowBookingConfirm] = useState(false);
 
   // LOAD REVIEWS
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function BoardingDetails() {
   };
 
   // BOOK NOW
-  const handleBookNow = async () => {
+  const handleBookNow = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -38,6 +39,12 @@ export default function BoardingDetails() {
       navigate("/login");
       return;
     }
+
+    setShowBookingConfirm(true);
+  };
+
+  const confirmBooking = async () => {
+    setShowBookingConfirm(false);
 
     try {
       await createBooking(boardingId);
@@ -47,6 +54,11 @@ export default function BoardingDetails() {
       console.error(error);
       setFeedback({ message: "Booking failed. Please try again.", type: "error" });
     }
+  };
+
+  const cancelBooking = () => {
+    setShowBookingConfirm(false);
+    setFeedback({ message: "Booking canceled.", type: "error" });
   };
 
   // ADD REVIEW
@@ -240,12 +252,39 @@ export default function BoardingDetails() {
               LKR 8,000
             </h3>
 
-            <button
-              onClick={handleBookNow}
-              className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800"
-            >
-              Book Boarding
-            </button>
+            {showBookingConfirm ? (
+              <div className="mt-6 space-y-4 rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
+                <div className="text-sm font-semibold text-indigo-900">
+                  Confirm Booking
+                </div>
+                <p className="text-sm text-gray-700">
+                  Are you sure you want to book this boarding? Please confirm to complete your reservation.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={cancelBooking}
+                    className="flex-1 rounded-xl border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmBooking}
+                    className="flex-1 rounded-xl bg-blue-700 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleBookNow}
+                className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800"
+              >
+                Book Boarding
+              </button>
+            )}
           </div>
         </div>
       </div>

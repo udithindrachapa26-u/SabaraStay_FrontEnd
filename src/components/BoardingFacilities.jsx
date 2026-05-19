@@ -84,7 +84,7 @@ export default function BoardingFacilities() {
   );
 }
 
-/* ===== STAT CARD (SAFE) ===== */
+/* ===== STAT CARD (built with AI support) ===== */
 function StatCard({ title, value }) {
   return (
     <motion.div

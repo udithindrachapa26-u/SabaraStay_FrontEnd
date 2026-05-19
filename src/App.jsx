@@ -9,6 +9,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import BookingSuccess from "./pages/BookingSuccess";
 import ListProperty from "./pages/ListProperty";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/booking-success" element={<BookingSuccess />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+        <Route path="/search" element={<SearchResults />} />
         <Route path="/list-property" element={<ListProperty />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>

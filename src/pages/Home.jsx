@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/common/Navbar";
@@ -7,7 +8,49 @@ import BoardingFacilities from "../components/BoardingFacilities";
 import Footer from "../components/common/Footer";
 
 export default function Home() {
-  const navigate = useNavigate(); // ✅ ADD
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState({
+    q: "",
+    boardingType: "",
+    minPrice: "",
+    maxPrice: "",
+    minRooms: "",
+    maxRooms: "",
+    maxDistance: "",
+    freeWifi: false,
+    attachedBathroom: false,
+    parking: false,
+    kitchen: false,
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, type, checked, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    const query = new URLSearchParams();
+
+    if (filters.q.trim()) query.set("q", filters.q.trim());
+    if (filters.boardingType) query.set("boardingType", filters.boardingType);
+    if (filters.minPrice) query.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) query.set("maxPrice", filters.maxPrice);
+    if (filters.minRooms) query.set("minRooms", filters.minRooms);
+    if (filters.maxRooms) query.set("maxRooms", filters.maxRooms);
+    if (filters.maxDistance) query.set("maxDistance", filters.maxDistance);
+    if (filters.freeWifi) query.set("freeWifi", "true");
+    if (filters.attachedBathroom) query.set("attachedBathroom", "true");
+    if (filters.parking) query.set("parking", "true");
+    if (filters.kitchen) query.set("kitchen", "true");
+
+    const queryString = query.toString();
+    navigate(`/search${queryString ? `?${queryString}` : ""}`);
+  };
 
   return (
     <div className="font-sans overflow-x-hidden">
@@ -70,23 +113,132 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
-              <div className="grid grid-cols-2 gap-4">
-                <select className="input">Make</select>
-                <select className="input">Type</select>
-                <select className="input">Gender</select>
-                <select className="input">Distance</select>
-                <input className="input" placeholder="Min Count" />
-                <input className="input" placeholder="Max Count" />
-                <input className="input" placeholder="Min Price" />
-                <input className="input" placeholder="Max Price" />
-              </div>
+            <div className="rounded-[2rem] bg-white/10 border border-white/20 p-8 shadow-2xl backdrop-blur-xl">
+              <form onSubmit={handleSearch} className="space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <input
+                    name="q"
+                    value={filters.q}
+                    onChange={handleFilterChange}
+                    className="input"
+                    placeholder="Search by name, address or description"
+                  />
+                  <select
+                    name="boardingType"
+                    value={filters.boardingType}
+                    onChange={handleFilterChange}
+                    className="input"
+                  >
+                    <option value="">Any type</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Mixed">Mixed</option>
+                  </select>
+                </div>
 
-              <input className="input mt-4 w-full" placeholder="Place / Name" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <input
+                      name="minPrice"
+                      type="number"
+                      value={filters.minPrice}
+                      onChange={handleFilterChange}
+                      className="input"
+                      placeholder="Min price"
+                    />
+                    <input
+                      name="maxPrice"
+                      type="number"
+                      value={filters.maxPrice}
+                      onChange={handleFilterChange}
+                      className="input"
+                      placeholder="Max price"
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <input
+                      name="minRooms"
+                      type="number"
+                      value={filters.minRooms}
+                      onChange={handleFilterChange}
+                      className="input"
+                      placeholder="Min rooms"
+                    />
+                    <input
+                      name="maxRooms"
+                      type="number"
+                      value={filters.maxRooms}
+                      onChange={handleFilterChange}
+                      className="input"
+                      placeholder="Max rooms"
+                    />
+                  </div>
+                </div>
 
-              <button className="mt-6 w-full bg-yellow-400 text-gray-900 font-semibold py-3 rounded-xl hover:bg-yellow-500 transition text-lg">
-                🔍 Search Boarding
-              </button>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <input
+                    name="maxDistance"
+                    type="number"
+                    step="0.1"
+                    value={filters.maxDistance}
+                    onChange={handleFilterChange}
+                    className="input"
+                    placeholder="Max distance (km)"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="input flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="freeWifi"
+                        checked={filters.freeWifi}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Free WiFi
+                    </label>
+                    <label className="input flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="attachedBathroom"
+                        checked={filters.attachedBathroom}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Bathroom
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="parking"
+                      checked={filters.parking}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Parking
+                  </label>
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="kitchen"
+                      checked={filters.kitchen}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Kitchen
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-yellow-400 text-slate-950 font-semibold py-3 transition hover:bg-yellow-300"
+                >
+                  🔍 Search Boarding
+                </button>
+              </form>
             </div>
           </section>
         </div>

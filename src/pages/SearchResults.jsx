@@ -9,16 +9,10 @@ export default function SearchResults() {
   const navigate = useNavigate();
 
   const [boardings, setBoardings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const queryString = searchParams.toString();
-    if (!queryString) {
-      setBoardings([]);
-      return;
-    }
-
     const fetchBoardings = async () => {
       setLoading(true);
       setError("");
@@ -27,7 +21,6 @@ export default function SearchResults() {
         const params = Object.fromEntries(searchParams.entries());
         const res = await api.get("/boardings", { params });
         const payload = res.data;
-        // Helpful debug log when fields don't match what front expects
         console.debug("/boardings response:", payload);
 
         let items = [];
@@ -72,9 +65,17 @@ export default function SearchResults() {
     }
   });
 
+  const SERVER_URL = "http://localhost:5000";
+
   // Helpers to support multiple backend field names
   const resolveImage = (b) => {
     if (!b) return null;
+    // Handle photoPath from database (normalize and prepend server URL)
+    if (b.photoPath) {
+      const p = b.photoPath;
+      if (p.startsWith("http://") || p.startsWith("https://")) return p;
+      return `${SERVER_URL}/${p}`;
+    }
     if (b.imageUrl) return b.imageUrl;
     if (b.image) return b.image;
     if (b.img) return b.img;
@@ -109,9 +110,13 @@ export default function SearchResults() {
       <main className="max-w-7xl mx-auto px-4 py-10">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Search Results</h1>
+            <h1 className="text-3xl font-bold">
+              {activeFilters.length > 0 ? "Search Results" : "Recently Added Boardings"}
+            </h1>
             <p className="mt-2 text-gray-600 max-w-2xl">
-              Browse boarding places that match your search criteria.
+              {activeFilters.length > 0
+                ? "Browse boarding places that match your search criteria."
+                : "Showing the most recently added boarding places near Sabaragamuwa University."}
             </p>
           </div>
 
@@ -160,7 +165,9 @@ export default function SearchResults() {
 
         {!loading && !error && boardings.length === 0 && (
           <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-700 shadow-sm">
-            No boarding places match your search.
+            {activeFilters.length > 0
+              ? "No boarding places match your search filters. Try broadening your search."
+              : "No boarding places have been added yet."}
           </div>
         )}
 

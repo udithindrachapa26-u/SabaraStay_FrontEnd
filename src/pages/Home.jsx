@@ -168,7 +168,8 @@ export default function Home() {
                   </div>
 
                   {/* Label */}
-                  <span className="block mt-4 text-sm font-semibold text-gray-800 opacity-90 group-hover:opacity-100">
+                  <span className="block mt-4 text-sm font-semibold text-yellow-300
+                   group-hover:text-white transition-colors duration-300">
                     {item.label}
                   </span>
                 </div>

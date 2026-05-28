@@ -15,7 +15,7 @@ export default function Navbar() {
     <nav
       className="
         sticky top-0 z-50
-        bg-[#173565]/80
+        bg-[#111d35]/80
         backdrop-blur-lg
         border-b border-white/10
       "

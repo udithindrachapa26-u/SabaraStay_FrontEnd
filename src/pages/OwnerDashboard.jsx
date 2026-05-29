@@ -30,6 +30,10 @@ export default function OwnerDashboard() {
     availableSpace: "",
     description: "",
     distance: "",
+    freeWifi: false,
+    attachedBathroom: false,
+    parking: false,
+    kitchen: false,
   });
   const [feedback, setFeedback] = useState({ message: "", type: "" });
 
@@ -97,6 +101,10 @@ export default function OwnerDashboard() {
       availableSpace: boarding.availableSpace?.toString() || "",
       description: boarding.description || "",
       distance: boarding.distance?.toString() || "",
+      freeWifi: Boolean(boarding.freeWifi) || false,
+      attachedBathroom: Boolean(boarding.attachedBathroom) || false,
+      parking: Boolean(boarding.parking) || false,
+      kitchen: Boolean(boarding.kitchen) || false,
     });
     setFeedback({ message: "", type: "" });
   };
@@ -112,13 +120,20 @@ export default function OwnerDashboard() {
       availableSpace: "",
       description: "",
       distance: "",
+      freeWifi: false,
+      attachedBathroom: false,
+      parking: false,
+      kitchen: false,
     });
     setFeedback({ message: "", type: "" });
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
+    const { name, type, checked, value } = e.target;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
     if (feedback.message) {
       setFeedback({ message: "", type: "" });
     }
@@ -128,9 +143,11 @@ export default function OwnerDashboard() {
     e.preventDefault();
     if (!editBoardingId) return;
 
-    const missingField = Object.entries(editForm).find(([, value]) => !value.toString().trim());
+    // Validate only text fields, not checkboxes
+    const textFields = ["boardingName", "boardingType", "address", "description", "price", "totalRooms", "availableSpace", "distance"];
+    const missingField = textFields.find((field) => !editForm[field].toString().trim());
     if (missingField) {
-      setFeedback({ message: "Please fill in every field before saving.", type: "error" });
+      setFeedback({ message: "Please fill in every required field before saving.", type: "error" });
       return;
     }
 
@@ -143,6 +160,10 @@ export default function OwnerDashboard() {
           totalRooms: Number(editForm.totalRooms),
           availableSpace: Number(editForm.availableSpace),
           distance: Number(editForm.distance),
+          freeWifi: editForm.freeWifi ? 1 : 0,
+          attachedBathroom: editForm.attachedBathroom ? 1 : 0,
+          parking: editForm.parking ? 1 : 0,
+          kitchen: editForm.kitchen ? 1 : 0,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -285,6 +306,12 @@ export default function OwnerDashboard() {
                           <h3 className="text-xl font-semibold text-white">{boarding.boardingName}</h3>
                           <p className="text-slate-400">{boarding.address}</p>
                           <p className="text-slate-300">{boarding.description}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {boarding.freeWifi && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">📶 WiFi</span>}
+                            {boarding.attachedBathroom && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🚿 Bathroom</span>}
+                            {boarding.parking && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🅿 Parking</span>}
+                            {boarding.kitchen && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🍳 Kitchen</span>}
+                          </div>
                         </div>
                         <div className="flex flex-col gap-3 sm:items-end">
                           <p className="text-3xl font-semibold text-white">Rs {boarding.price}</p>
@@ -378,6 +405,51 @@ export default function OwnerDashboard() {
                               placeholder="Distance km"
                               className="input"
                             />
+                          </div>
+                          <div className="space-y-3">
+                            <p className="text-sm font-semibold text-yellow-300">Amenities</p>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="freeWifi"
+                                  checked={editForm.freeWifi}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Free WiFi</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="attachedBathroom"
+                                  checked={editForm.attachedBathroom}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Attached Bathroom</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="parking"
+                                  checked={editForm.parking}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Parking</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="kitchen"
+                                  checked={editForm.kitchen}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Kitchen Access</span>
+                              </label>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                             <button

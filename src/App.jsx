@@ -10,6 +10,9 @@ import BookingSuccess from "./pages/BookingSuccess";
 import ListProperty from "./pages/ListProperty";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import SearchResults from "./pages/SearchResults";
+import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
+import Help from "./pages/Help";
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
         <Route path="/owner/dashboard" element={<OwnerDashboard />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/list-property" element={<ListProperty />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
         <Route path="*" element={<Navigate to="/register" replace />} />
       </Routes>
     </BrowserRouter>

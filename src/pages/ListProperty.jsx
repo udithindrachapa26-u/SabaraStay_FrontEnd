@@ -22,6 +22,7 @@ export default function ListProperty() {
 
   const [photos, setPhotos] = useState([]);
   const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
+  const MAX_PHOTOS = 4;
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
@@ -61,10 +62,24 @@ export default function ListProperty() {
       return;
     }
 
+    if (photos.length > MAX_PHOTOS) {
+      setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed. Please remove extra photos.`, type: "error" });
+      return;
+    }
+
     const data = new FormData();
-    Object.keys(form).forEach((key) => {
-      data.append(key, form[key]);
-    });
+    data.append("boardingName", form.boardingName);
+    data.append("boardingType", form.boardingType);
+    data.append("address", form.address);
+    data.append("price", form.price);
+    data.append("totalRooms", form.totalRooms);
+    data.append("availableSpace", form.availableSpace);
+    data.append("description", form.description);
+    data.append("distance", form.distance);
+    data.append("freeWifi", form.freeWifi ? "1" : "0");
+    data.append("attachedBathroom", form.attachedBathroom ? "1" : "0");
+    data.append("parking", form.parking ? "1" : "0");
+    data.append("kitchen", form.kitchen ? "1" : "0");
 
     photos.forEach((photo) => {
       data.append("photos", photo);
@@ -74,7 +89,6 @@ export default function ListProperty() {
       await api.post("/boardings", data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -190,11 +204,46 @@ export default function ListProperty() {
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => setPhotos([...e.target.files])}
+            onChange={(e) => {
+              const selectedPhotos = Array.from(e.target.files);
+              const combined = [...photos, ...selectedPhotos].slice(0, MAX_PHOTOS);
+              setPhotos(combined);
+              if (combined.length > MAX_PHOTOS) {
+                setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed.`, type: "error" });
+              } else if (formFeedback.message) {
+                setFormFeedback({ message: "", type: "" });
+              }
+              e.target.value = "";
+            }}
             className="w-full rounded-lg border-2 border-dashed border-yellow-400/50 bg-white/5 p-4 text-sm text-white/70 file:mr-3 file:rounded file:border-0 file:bg-yellow-400 file:px-3 file:py-2 file:text-black file:font-semibold"
           />
           {photos.length > 0 && (
-            <p className="text-sm text-emerald-300">{photos.length} photo(s) selected</p>
+            <div className="space-y-2">
+              <p className={`text-sm ${photos.length > MAX_PHOTOS ? "text-red-300" : "text-emerald-300"}`}>
+                {photos.length}/{MAX_PHOTOS} photo(s) selected
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {photos.map((photo, idx) => (
+                  <div key={idx} className="relative rounded-lg overflow-hidden border border-yellow-400/30 bg-white/5 h-24 group">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Preview ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos(photos.filter((_, i) => i !== idx))}
+                      className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white opacity-90 hover:bg-black"
+                    >
+                      Remove
+                    </button>
+                    <div className="absolute left-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white">
+                      {idx + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

@@ -11,6 +11,7 @@ export default function SearchResults() {
   const [boardings, setBoardings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [photoIndices, setPhotoIndices] = useState({});
 
   useEffect(() => {
     const fetchBoardings = async () => {
@@ -70,7 +71,11 @@ export default function SearchResults() {
   // Helpers to support multiple backend field names
   const resolveImage = (b) => {
     if (!b) return null;
-    // Handle photoPath from database (normalize and prepend server URL)
+    if (Array.isArray(b.photos) && b.photos.length > 0) {
+      const p = b.photos[0];
+      if (p.startsWith("http://") || p.startsWith("https://")) return p;
+      return `${SERVER_URL}/${p}`;
+    }
     if (b.photoPath) {
       const p = b.photoPath;
       if (p.startsWith("http://") || p.startsWith("https://")) return p;
@@ -82,8 +87,23 @@ export default function SearchResults() {
     if (b.image_url) return b.image_url;
     if (b.imagePath) return b.imagePath;
     if (Array.isArray(b.images) && b.images.length) return b.images[0];
-    if (Array.isArray(b.photos) && b.photos.length) return b.photos[0];
     return null;
+  };
+
+  const getPhotoGallery = (b) => {
+    if (!b) return [];
+    if (Array.isArray(b.photos) && b.photos.length > 0) {
+      return b.photos.map((photo) => {
+        if (photo.startsWith("http://") || photo.startsWith("https://")) return photo;
+        return `${SERVER_URL}/${photo}`;
+      });
+    }
+    if (b.photoPath) {
+      const p = b.photoPath;
+      if (p.startsWith("http://") || p.startsWith("https://")) return [p];
+      return [`${SERVER_URL}/${p}`];
+    }
+    return [];
   };
 
   const resolveTitle = (b) => {
@@ -173,7 +193,10 @@ export default function SearchResults() {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {boardings.map((boarding) => {
-            const img = resolveImage(boarding) || "https://images.unsplash.com/photo-1560185127-6d0d2b0e1f61";
+            const gallery = getPhotoGallery(boarding);
+            const currentPhotoIdx = photoIndices[resolveId(boarding)] || 0;
+            const totalPhotos = gallery.length || 1;
+            const img = gallery.length > 0 ? gallery[currentPhotoIdx] : resolveImage(boarding) || "https://images.unsplash.com/photo-1560185127-6d0d2b0e1f61";
             const title = resolveTitle(boarding);
             const id = resolveId(boarding);
             const price = resolvePrice(boarding);
@@ -187,9 +210,32 @@ export default function SearchResults() {
                 <div className="relative h-56 overflow-hidden bg-slate-200">
                   <img
                     src={img}
-                    alt={title}
+                    alt={`${title} - Photo ${currentPhotoIdx + 1}`}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
+                  {gallery.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setPhotoIndices({ ...photoIndices, [id]: (currentPhotoIdx - 1 + totalPhotos) % totalPhotos })}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/75 transition z-10"
+                        aria-label="Previous photo"
+                      >
+                        ❮
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPhotoIndices({ ...photoIndices, [id]: (currentPhotoIdx + 1) % totalPhotos })}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/75 transition z-10"
+                        aria-label="Next photo"
+                      >
+                        ❯
+                      </button>
+                      <div className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white font-semibold">
+                        {currentPhotoIdx + 1}/{totalPhotos}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="p-6">

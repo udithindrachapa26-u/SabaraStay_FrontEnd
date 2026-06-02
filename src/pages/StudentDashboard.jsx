@@ -239,43 +239,6 @@ export default function StudentDashboard() {
                   </div>
                 )}
               </div>
-
-              <div className="rounded-4xl border border-slate-800 bg-slate-950/95 p-6 shadow-xl">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">My appointments</h2>
-                    <p className="mt-2 text-sm text-slate-400">Upcoming or past appointments for boarding visits.</p>
-                  </div>
-                  <span className="rounded-full bg-cyan-500/15 px-3 py-1 text-sm font-semibold text-cyan-300">
-                    {appointments.length} record{appointments.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-
-                {appointments.length === 0 ? (
-                  <div className="mt-8 rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
-                    No appointment records yet. Schedule a visit to see available boardings.
-                  </div>
-                ) : (
-                  <div className="mt-6 space-y-4">
-                    {appointments.map((appointment) => (
-                      <article
-                        key={appointment.appointmentID || appointment.id || `${appointment.studentID}-${getAppointmentDate(appointment)}`}
-                        className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 transition hover:-translate-y-0.5 hover:bg-slate-900"
-                      >
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <h3 className="text-lg font-semibold text-white">{getAppointmentTitle(appointment)}</h3>
-                            <p className="mt-2 text-sm text-slate-400">{`${getAppointmentDate(appointment)} • ${getAppointmentTime(appointment)}`}</p>
-                          </div>
-                          <span className="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-cyan-300">
-                            {getAppointmentStatus(appointment)}
-                          </span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </div>
             </section>
 
             <aside className="space-y-6">

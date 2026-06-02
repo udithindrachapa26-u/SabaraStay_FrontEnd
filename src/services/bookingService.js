@@ -11,3 +11,23 @@ export const createBooking = (boardingId) => {
     }
   );
 };
+
+export const getOwnerBookings = () => {
+  return api.get("/bookings/owner", {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+};
+
+export const confirmBooking = (bookingId) => {
+  return api.put(
+    `/bookings/${bookingId}`,
+    { status: "CONFIRMED" },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+};

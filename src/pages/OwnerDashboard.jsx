@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { getOwnerBookings, confirmBooking as confirmBookingRequest } from "../services/bookingService";
 
 const numberFields = ["price", "totalRooms", "availableSpace", "distance"];
 
@@ -13,6 +14,37 @@ const normalizeOwnerResponse = (data) => {
   if (!data) return null;
   return data.user || data.owner || data;
 };
+
+const normalizeBookingResponse = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.bookings)) return data.bookings;
+  if (Array.isArray(data.bookingRequests)) return data.bookingRequests;
+  if (Array.isArray(data.requests)) return data.requests;
+  if (Array.isArray(data.boardings)) {
+    return data.boardings.flatMap((boarding) => {
+      if (!boarding) return [];
+      if (Array.isArray(boarding.bookings)) return boarding.bookings;
+      if (Array.isArray(boarding.bookingRequests)) return boarding.bookingRequests;
+      if (Array.isArray(boarding.requests)) return boarding.requests;
+      return [];
+    });
+  }
+  return [];
+};
+
+const getBookingStatus = (booking) => booking.status || booking.booking_status || booking.statusText || "Pending";
+
+const getBookingStudentName = (booking) =>
+  booking.user?.firstName ||
+  booking.student?.firstName ||
+  booking.firstName ||
+  booking.name ||
+  booking.email ||
+  "Student";
+
+const getBookingStartDate = (booking) =>
+  booking.start_date || booking.startDate || booking.check_in_date || booking.bookingDate || "Date not available";
 
 export default function OwnerDashboard() {
   const navigate = useNavigate();
@@ -36,6 +68,9 @@ export default function OwnerDashboard() {
     kitchen: false,
   });
   const [feedback, setFeedback] = useState({ message: "", type: "" });
+  const [ownerBookings, setOwnerBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
+  const [bookingActionFeedback, setBookingActionFeedback] = useState({ message: "", type: "" });
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -64,10 +99,10 @@ export default function OwnerDashboard() {
         const response = await api.get("/boardings/owner", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // API may return { owner, boardings }
         const data = response.data || {};
         if (data.owner) setOwner((prev) => ({ ...(prev || {}), ...data.owner }));
         if (Array.isArray(data.boardings)) setBoardings(data.boardings);
+        else if (Array.isArray(data.bookings)) setBoardings(data.bookings);
         else if (Array.isArray(data)) setBoardings(data);
       } catch (error) {
         console.error("Failed to load owner boardings:", error);
@@ -81,7 +116,25 @@ export default function OwnerDashboard() {
       }
     };
 
+    const fetchOwnerBookings = async () => {
+      try {
+        setBookingsLoading(true);
+        setBookingActionFeedback({ message: "", type: "" });
+        const response = await getOwnerBookings();
+        setOwnerBookings(response.data || []);
+      } catch (error) {
+        console.error("Failed to load owner bookings:", error);
+        setBookingActionFeedback({
+          message: "Unable to load booking requests right now. Please try again later.",
+          type: "error",
+        });
+      } finally {
+        setBookingsLoading(false);
+      }
+    };
+
     fetchBoardings();
+    fetchOwnerBookings();
   }, [navigate, role, token]);
 
   const activeBoardings = useMemo(() => boardings.length, [boardings]);
@@ -186,6 +239,36 @@ export default function OwnerDashboard() {
     }
   };
 
+  const handleConfirmBooking = async (bookingId) => {
+    if (!bookingId) return;
+
+    const confirmed = window.confirm("Confirm this student booking request?");
+    if (!confirmed) return;
+
+    try {
+      await confirmBookingRequest(bookingId);
+      setOwnerBookings((prev) =>
+        prev.map((booking) => {
+          const normalizedId = String(booking.id || booking.bookingId || "");
+          if (normalizedId === String(bookingId)) {
+            return { ...booking, status: "CONFIRMED" };
+          }
+          return booking;
+        })
+      );
+      setBookingActionFeedback({
+        message: "Booking request confirmed successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to confirm booking:", error);
+      setBookingActionFeedback({
+        message: error.response?.data?.message || "Unable to confirm booking right now.",
+        type: "error",
+      });
+    }
+  };
+
   const handleDelete = async (boardingID) => {
     const confirmed = window.confirm("Delete this boarding listing? This cannot be undone.");
     if (!confirmed) return;
@@ -258,6 +341,71 @@ export default function OwnerDashboard() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="rounded-4xl border border-slate-800 bg-slate-900/90 p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">Booking requests</h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Review and confirm pending student booking requests for your boardings.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-cyan-300">
+                {ownerBookings.length} request{ownerBookings.length !== 1 ? "s" : ""}
+              </span>
+              <span className="inline-flex items-center rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300">
+                {ownerBookings.filter((booking) => getBookingStatus(booking).toLowerCase() === "pending").length} pending
+              </span>
+            </div>
+          </div>
+
+          {bookingActionFeedback.message && (
+            <div className={`mt-4 rounded-2xl p-4 text-sm ${bookingActionFeedback.type === "success" ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20" : "bg-red-500/10 text-red-200 border border-red-500/20"}`}>
+              {bookingActionFeedback.message}
+            </div>
+          )}
+
+          {bookingsLoading ? (
+            <div className="mt-6 rounded-4xl border border-slate-800 bg-slate-950/80 p-8 text-center text-slate-400">
+              Loading booking requests...
+            </div>
+          ) : ownerBookings.length === 0 ? (
+            <div className="mt-6 rounded-4xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
+              No booking requests have been received yet.
+            </div>
+          ) : (
+            <div className="mt-6 space-y-4">
+              {ownerBookings.map((booking) => (
+                <article key={booking.id || booking.bookingId || `${booking.boarding_id}-${booking.id}`}
+                  className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{booking.boardingName || booking.boarding?.boardingName || booking.boarding_name || "Untitled boarding"}</h3>
+                      <p className="mt-2 text-sm text-slate-400">Requested by {getBookingStudentName(booking)}</p>
+                      <p className="mt-1 text-sm text-slate-500">Start date: {getBookingStartDate(booking)}</p>
+                    </div>
+                    <div className="flex flex-col gap-3 sm:items-end">
+                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${getBookingStatus(booking).toLowerCase() === "pending" ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/10 text-emerald-200"}`}>
+                        {getBookingStatus(booking)}
+                      </span>
+                      {getBookingStatus(booking).toLowerCase() === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => handleConfirmBooking(booking.id || booking.bookingId)}
+                          className="rounded-3xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+                        >
+                          Confirm
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         {errorMessage ? (

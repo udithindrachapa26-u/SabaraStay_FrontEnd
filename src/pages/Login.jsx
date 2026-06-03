@@ -46,7 +46,15 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(userData));
 
       setFeedback({ message: "Login successful", type: "success" });
-      setTimeout(() => navigate("/home"), 500);
+      setTimeout(() => {
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (role === "owner") {
+          navigate("/owner/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
+      }, 500);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Invalid email or password";

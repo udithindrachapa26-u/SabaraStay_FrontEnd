@@ -30,7 +30,7 @@ export default function Home() {
           <Navbar />
 
           {/* Categories */}
-          <section className="flex justify-center gap-12 mt-10">
+          <section className="flex justify-center gap-12 mt-10" id="categories">
             {[
               { icon: "🛏️", label: "Short Term" },
               { icon: "🏠", label: "Long Term" },

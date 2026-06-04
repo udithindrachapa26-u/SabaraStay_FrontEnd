@@ -68,8 +68,9 @@ function ContactSupportModal({ student, onClose }) {
       `Email: ${studentEmail}`,
     ].join("\n");
 
-    const mailto = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    // Opens Gmail compose in a new tab — works in any browser, no mail app needed
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(SUPPORT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
     setSent(true);
   };
 
@@ -106,7 +107,7 @@ function ContactSupportModal({ student, onClose }) {
             </div>
             <p className="text-lg font-semibold text-white">Your email app is opening…</p>
             <p className="max-w-xs text-sm text-slate-400">
-              Your message has been pre-filled. Just hit <span className="text-cyan-300 font-semibold">Send</span> in your email client to reach us at{" "}
+              Your message has been pre-filled. Just hit <span className="text-cyan-300 font-semibold">Send</span> to send to{" "}
               <span className="text-slate-200">{SUPPORT_EMAIL}</span>.
             </p>
             <button
@@ -161,8 +162,8 @@ function ContactSupportModal({ student, onClose }) {
 
             {/* note */}
             <p className="text-xs text-slate-500">
-              Clicking <span className="text-slate-300 font-medium">"Open email &amp; send"</span> will open your
-              default mail app pre-filled with this message, ready to send to{" "}
+              Clicking <span className="text-slate-300 font-medium">"Open Gmail &amp; send"</span> will open your
+              Gmail in a new tab pre-filled with this message, ready to send to{" "}
               <span className="text-cyan-400">{SUPPORT_EMAIL}</span>.
             </p>
 
@@ -181,7 +182,7 @@ function ContactSupportModal({ student, onClose }) {
                 disabled={!subject.trim() || !message.trim()}
                 className="rounded-3xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
               >
-                Open email &amp; send
+                Open Gmail &amp; send
               </button>
             </div>
           </div>

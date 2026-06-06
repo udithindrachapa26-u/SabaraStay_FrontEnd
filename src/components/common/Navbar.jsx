@@ -15,7 +15,7 @@ export default function Navbar() {
     <nav
       className="
         sticky top-0 z-50
-        bg-[#173565]/80
+        bg-[#111d35]/80
         backdrop-blur-lg
         border-b border-white/10
       "
@@ -99,8 +99,8 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/register"
-                className="
+                  to="/register"
+                  className="
                   bg-yellow-400
                   text-[#173565]
                   px-4 py-2 rounded-lg

@@ -99,8 +99,8 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/register"
-                className="
+                  to="/register"
+                  className="
                   bg-yellow-400
                   text-[#173565]
                   px-4 py-2 rounded-lg

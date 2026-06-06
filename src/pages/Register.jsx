@@ -292,8 +292,8 @@ function Register() {
                 </button>
               </div>
           </div>
-
-          {formFeedback.message && (
+                    {/* This is not working: feedback message */}
+          {/* {formFeedback.message && (
             <div
               className={
                 formFeedback.type === "success"
@@ -303,7 +303,7 @@ function Register() {
             >
               {formFeedback.message}
             </div>
-          )}
+          )} */}
 
           {/* <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">

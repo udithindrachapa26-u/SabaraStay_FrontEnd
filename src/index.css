@@ -21,3 +21,7 @@
 .animate-fadeInUp {
   animation: fadeInUp 0.9s ease-out both;
 }
+
+.input {
+  @apply w-full rounded-xl bg-white/80 p-2 text-black;
+}

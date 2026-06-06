@@ -13,36 +13,10 @@ function Register() {
     contactNo: "",
     role: "student",
   });
-  const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
-
-  const passwordCriteria = [
-    // { label: "At least 8 characters", valid: formData.password.length >= 8 },
-    // { label: "Uppercase and lowercase letters", valid: /(?=.*[a-z])(?=.*[A-Z])/.test(formData.password) },
-    // { label: "At least one number", valid: /(?=.*\d)/.test(formData.password) },
-    // { label: "At least one special symbol", valid: /(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/.test(formData.password) },
-  ];
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    if (name === "password") {
-      checkStrength(value);
-    }
-    if (formFeedback.message) setFormFeedback({ message: "", type: "" });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  /// need to edit this function to work with the new role selector
-  const selectRole = (role) => {
-    const currentRole = role;
-    document.getElementById('roleStudent').classList.toggle('selected', role==='student');
-    document.getElementById('roleOwner').classList.toggle('selected', role==='owner');
-    // toggle icon colors
-    document.querySelector('#roleStudent .role-icon svg').setAttribute('stroke', role==='student'?'var(--teal)':'var(--text-soft)');
-    document.querySelector('#roleOwner .role-icon svg').setAttribute('stroke', role==='owner'?'var(--teal)':'var(--text-soft)');
-    // show/hide index field
-    document.getElementById('indexField').style.display = role==='student' ? 'block' : 'none';
-    
-}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -252,25 +226,36 @@ function Register() {
               placeholder="Create a password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
               required
-            /> */}
-            <p className="text-sm text-gray-500 mt-2" style={{ marginTop: '-10px' }}>
-              Use a strong password with uppercase, lowercase, numbers and symbols.
-            </p>
-            {/* <ul className="mt-3 grid gap-1 text-sm">
-              {passwordCriteria.map((item) => (
-                <li
-                  key={item.label}
-                  className={
-                    item.valid
-                      ? "text-emerald-600"
-                      : "text-red-600"
-                  }
-                >
-                  {item.valid ? "✓" : "•"} {item.label}
-                </li>
-              ))}
-            </ul> */}
+            />
           </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Re-enter your password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              required
+            />
+          </div>
+
+          {formFeedback.message && (
+            <div
+              className={
+                formFeedback.type === "success"
+                  ? "rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 px-4 py-3 text-sm"
+                  : "rounded-lg border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
+              }
+            >
+              {formFeedback.message}
+            </div>
+          )}
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">

@@ -31,6 +31,30 @@ export default function Navbar() {
           <span className="text-yellow-400">Stay</span>
         </Link>
 
+        {/* CENTER - Nav Links */}
+            <div className="flex-1 flex justify-center gap-8">
+              <Link
+                to="/how-it-works"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                How It Works
+              </Link>
+
+              <Link
+                to="/about"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                About
+              </Link>
+
+              <Link
+                to="/help"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                Help
+              </Link>
+            </div>
+
         {/* NAV LINKS */}
         <div className="flex items-center gap-6 text-sm font-medium">
 
@@ -45,6 +69,18 @@ export default function Navbar() {
               "
             >
               Dashboard
+            </Link>
+          )}
+          {token && role === "owner" && (
+            <Link
+              to="/owner/dashboard"
+              className="
+                text-white/90
+                hover:text-yellow-400
+                transition
+              "
+            >
+              Owner Dashboard
             </Link>
           )}
 

@@ -9,3 +9,13 @@ export const registerUser = (userData) => {
 export const loginUser = (loginData) => {
   return api.post("/auth/login", loginData);
 };
+
+// FORGOT PASSWORD
+export const forgotPassword = (emailData) => {
+  return api.post("/auth/forgot-password", emailData);
+};
+
+// RESET PASSWORD
+export const resetPassword = (resetData) => {
+  return api.post("/auth/reset-password", resetData);
+};

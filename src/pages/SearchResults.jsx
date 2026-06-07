@@ -8,6 +8,9 @@ export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   const [boardings, setBoardings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -144,17 +147,19 @@ export default function SearchResults() {
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              className="rounded-full bg-blue-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
             >
               Back to home
             </button>
-            <button
-              type="button"
-              onClick={() => navigate("/list-property")}
-              className="rounded-full bg-blue-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
-            >
-              Add boarding
-            </button>
+            {token && role === "owner" && (
+              <button
+                type="button"
+                onClick={() => navigate("/list-property")}
+                className="rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              >
+                Add boarding
+              </button>
+            )}
           </div>
         </div>
 

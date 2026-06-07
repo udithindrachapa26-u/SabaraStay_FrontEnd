@@ -251,10 +251,10 @@ export default function SearchResults() {
                   </div>
 
                   <div className="mt-4 grid gap-2 text-sm text-slate-700">
-                    {boarding.freeWifi && <span>✔ Free Wifi</span>}
-                    {boarding.attachedBathroom && <span>✔ Attached Bathroom</span>}
-                    {boarding.parking && <span>✔ Parking</span>}
-                    {boarding.kitchen && <span>✔ Kitchen</span>}
+                    {!!boarding.freeWifi && <span>✔ Free Wifi</span>}
+                    {!!boarding.attachedBathroom && <span>✔ Attached Bathroom</span>}
+                    {!!boarding.parking && <span>✔ Parking</span>}
+                    {!!boarding.kitchen && <span>✔ Kitchen</span>}
                   </div>
 
                   <div className="mt-6 flex items-center justify-between gap-3">

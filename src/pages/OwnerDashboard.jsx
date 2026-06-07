@@ -293,7 +293,16 @@ export default function OwnerDashboard() {
 
       setBoardings((prev) =>
         prev.map((boarding) =>
-          boarding.boardingID === editBoardingId ? { ...boarding, ...editForm } : boarding
+          boarding.boardingID === editBoardingId
+            ? {
+                ...boarding,
+                ...editForm,
+                freeWifi: editForm.freeWifi ? 1 : 0,
+                attachedBathroom: editForm.attachedBathroom ? 1 : 0,
+                parking: editForm.parking ? 1 : 0,
+                kitchen: editForm.kitchen ? 1 : 0,
+              }
+            : boarding
         )
       );
       setFeedback({ message: "Boarding updated successfully.", type: "success" });
@@ -615,22 +624,22 @@ export default function OwnerDashboard() {
                           <p className="text-slate-400">{boarding.address}</p>
                           <p className="text-slate-300">{boarding.description}</p>
                           <div className="flex flex-wrap gap-2">
-                            {boarding.freeWifi && (
+                            {!!boarding.freeWifi && (
                               <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
                                 📶 WiFi
                               </span>
                             )}
-                            {boarding.attachedBathroom && (
+                            {!!boarding.attachedBathroom && (
                               <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
                                 🚿 Bathroom
                               </span>
                             )}
-                            {boarding.parking && (
+                            {!!boarding.parking && (
                               <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
                                 🅿 Parking
                               </span>
                             )}
-                            {boarding.kitchen && (
+                            {!!boarding.kitchen && (
                               <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
                                 🍳 Kitchen
                               </span>

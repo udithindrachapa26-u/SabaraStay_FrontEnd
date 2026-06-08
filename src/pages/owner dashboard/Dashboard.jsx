@@ -6,8 +6,8 @@ import Footer from "../../common/footer";
 
 // Pages
 import AppointmentManagement from "./appointmentManagement";
-import ApproveRequestPage from "./approve request/approveRequest";
-import AddListingPage from "./add listing/AddListing";
+import ApproveRequestPage from "../approve request/approveRequest";
+import AddListingPage from "../add listing/AddListing";
 // import NotificationPage from "./pages/NotificationPage";
 
 export default function App() {

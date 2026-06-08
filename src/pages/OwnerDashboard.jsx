@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { getOwnerBookings, confirmBooking as confirmBookingRequest } from "../services/bookingService";
 
 const numberFields = ["price", "totalRooms", "availableSpace", "distance"];
 
@@ -13,6 +14,57 @@ const normalizeOwnerResponse = (data) => {
   if (!data) return null;
   return data.user || data.owner || data;
 };
+
+const normalizeBookingResponse = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.bookings)) return data.bookings;
+  if (Array.isArray(data.bookingRequests)) return data.bookingRequests;
+  if (Array.isArray(data.requests)) return data.requests;
+  if (Array.isArray(data.boardings)) {
+    return data.boardings.flatMap((boarding) => {
+      if (!boarding) return [];
+      if (Array.isArray(boarding.bookings)) return boarding.bookings;
+      if (Array.isArray(boarding.bookingRequests)) return boarding.bookingRequests;
+      if (Array.isArray(boarding.requests)) return boarding.requests;
+      return [];
+    });
+  }
+  return [];
+};
+
+const getBookingStatus = (booking) =>
+  booking.status || booking.booking_status || booking.statusText || "Pending";
+
+const getBookingStudentName = (booking) =>
+  booking.user?.firstName ||
+  booking.student?.firstName ||
+  booking.firstName ||
+  booking.name ||
+  booking.email ||
+  "Student";
+
+const getBookingStartDate = (booking) =>
+  booking.start_date ||
+  booking.startDate ||
+  booking.check_in_date ||
+  booking.bookingDate ||
+  "Date not available";
+
+// Returns the boarding ID from a booking, checking multiple field names
+const getBookingBoardingId = (booking) =>
+  booking.boardingID ||
+  booking.boarding_id ||
+  booking.boarding?.boardingID ||
+  booking.boardingId ||
+  null;
+
+// Returns the boarding name from a booking, checking multiple field names
+const getBookingBoardingName = (booking) =>
+  booking.boardingName ||
+  booking.boarding?.boardingName ||
+  booking.boarding_name ||
+  null;
 
 export default function OwnerDashboard() {
   const navigate = useNavigate();
@@ -36,6 +88,11 @@ export default function OwnerDashboard() {
     kitchen: false,
   });
   const [feedback, setFeedback] = useState({ message: "", type: "" });
+  const [ownerBookings, setOwnerBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
+  const [bookingActionFeedback, setBookingActionFeedback] = useState({ message: "", type: "" });
+  // Track which boarding sections are expanded in the booking requests panel
+  const [expandedBoardings, setExpandedBoardings] = useState({});
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -64,10 +121,10 @@ export default function OwnerDashboard() {
         const response = await api.get("/boardings/owner", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // API may return { owner, boardings }
         const data = response.data || {};
         if (data.owner) setOwner((prev) => ({ ...(prev || {}), ...data.owner }));
         if (Array.isArray(data.boardings)) setBoardings(data.boardings);
+        else if (Array.isArray(data.bookings)) setBoardings(data.bookings);
         else if (Array.isArray(data)) setBoardings(data);
       } catch (error) {
         console.error("Failed to load owner boardings:", error);
@@ -81,7 +138,35 @@ export default function OwnerDashboard() {
       }
     };
 
+    const fetchOwnerBookings = async () => {
+      try {
+        setBookingsLoading(true);
+        setBookingActionFeedback({ message: "", type: "" });
+        const response = await getOwnerBookings();
+        const bookings = response.data || [];
+        setOwnerBookings(bookings);
+
+        // Auto-expand all boarding groups that have pending requests
+        const groups = {};
+        bookings.forEach((b) => {
+          const bid = getBookingBoardingId(b);
+          const key = bid != null ? String(bid) : "unassigned";
+          if (!groups[key]) groups[key] = true;
+        });
+        setExpandedBoardings(groups);
+      } catch (error) {
+        console.error("Failed to load owner bookings:", error);
+        setBookingActionFeedback({
+          message: "Unable to load booking requests right now. Please try again later.",
+          type: "error",
+        });
+      } finally {
+        setBookingsLoading(false);
+      }
+    };
+
     fetchBoardings();
+    fetchOwnerBookings();
   }, [navigate, role, token]);
 
   const activeBoardings = useMemo(() => boardings.length, [boardings]);
@@ -89,6 +174,42 @@ export default function OwnerDashboard() {
     () => boardings.reduce((sum, boarding) => sum + Number(boarding.availableSpace || 0), 0),
     [boardings]
   );
+
+  // Group bookings by boarding ID
+  const bookingsByBoarding = useMemo(() => {
+    const groups = {};
+    ownerBookings.forEach((booking) => {
+      const boardingId = getBookingBoardingId(booking);
+      const key = boardingId != null ? String(boardingId) : "unassigned";
+      if (!groups[key]) {
+        groups[key] = {
+          boardingId: key,
+          boardingName: getBookingBoardingName(booking) || "Unknown Boarding",
+          bookings: [],
+        };
+      }
+      groups[key].bookings.push(booking);
+    });
+
+    // Merge with actual boarding data so we always use the canonical name
+    boardings.forEach((boarding) => {
+      const key = String(boarding.boardingID);
+      if (groups[key]) {
+        groups[key].boardingName = boarding.boardingName || groups[key].boardingName;
+      }
+    });
+
+    return Object.values(groups);
+  }, [ownerBookings, boardings]);
+
+  const totalPending = useMemo(
+    () => ownerBookings.filter((b) => getBookingStatus(b).toLowerCase() === "pending").length,
+    [ownerBookings]
+  );
+
+  const toggleBoardingExpand = (key) => {
+    setExpandedBoardings((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const openEdit = (boarding) => {
     setEditBoardingId(boarding.boardingID);
@@ -143,8 +264,10 @@ export default function OwnerDashboard() {
     e.preventDefault();
     if (!editBoardingId) return;
 
-    // Validate only text fields, not checkboxes
-    const textFields = ["boardingName", "boardingType", "address", "description", "price", "totalRooms", "availableSpace", "distance"];
+    const textFields = [
+      "boardingName", "boardingType", "address", "description",
+      "price", "totalRooms", "availableSpace", "distance",
+    ];
     const missingField = textFields.find((field) => !editForm[field].toString().trim());
     if (missingField) {
       setFeedback({ message: "Please fill in every required field before saving.", type: "error" });
@@ -165,9 +288,7 @@ export default function OwnerDashboard() {
           parking: editForm.parking ? 1 : 0,
           kitchen: editForm.kitchen ? 1 : 0,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setBoardings((prev) =>
@@ -186,6 +307,35 @@ export default function OwnerDashboard() {
     }
   };
 
+  const handleConfirmBooking = async (bookingId) => {
+    if (!bookingId) return;
+    const confirmed = window.confirm("Confirm this student booking request?");
+    if (!confirmed) return;
+
+    try {
+      await confirmBookingRequest(bookingId);
+      setOwnerBookings((prev) =>
+        prev.map((booking) => {
+          const normalizedId = String(booking.id || booking.bookingId || "");
+          if (normalizedId === String(bookingId)) {
+            return { ...booking, status: "CONFIRMED" };
+          }
+          return booking;
+        })
+      );
+      setBookingActionFeedback({
+        message: "Booking request confirmed successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to confirm booking:", error);
+      setBookingActionFeedback({
+        message: error.response?.data?.message || "Unable to confirm booking right now.",
+        type: "error",
+      });
+    }
+  };
+
   const handleDelete = async (boardingID) => {
     const confirmed = window.confirm("Delete this boarding listing? This cannot be undone.");
     if (!confirmed) return;
@@ -195,9 +345,7 @@ export default function OwnerDashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBoardings((prev) => prev.filter((boarding) => boarding.boardingID !== boardingID));
-      if (editBoardingId === boardingID) {
-        closeEdit();
-      }
+      if (editBoardingId === boardingID) closeEdit();
       setFeedback({ message: "Boarding deleted successfully.", type: "success" });
     } catch (error) {
       console.error("Failed to delete boarding:", error);
@@ -211,6 +359,8 @@ export default function OwnerDashboard() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl space-y-8">
+
+        {/* ── Hero / stats ─────────────────────────────────────────── */}
         <section className="rounded-4xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden">
           <div className="bg-linear-to-r from-slate-700 via-slate-800 to-slate-900 px-8 py-10 sm:px-12 sm:py-12">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -260,12 +410,161 @@ export default function OwnerDashboard() {
           </div>
         </section>
 
+        {/* ── Booking requests grouped by boarding ─────────────────── */}
+        <section className="rounded-4xl border border-slate-800 bg-slate-900/90 p-6">
+          {/* Section header */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-white">Booking requests</h2>
+              <p className="mt-2 text-sm text-slate-400">
+                All requests are grouped by boarding — expand a boarding to review and confirm individual requests.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-cyan-300">
+                {ownerBookings.length} request{ownerBookings.length !== 1 ? "s" : ""}
+              </span>
+              <span className="inline-flex items-center rounded-full bg-slate-800 px-4 py-2 text-sm font-semibold text-amber-300">
+                {totalPending} pending
+              </span>
+            </div>
+          </div>
+
+          {/* Action feedback */}
+          {bookingActionFeedback.message && (
+            <div
+              className={`mt-4 rounded-2xl p-4 text-sm ${
+                bookingActionFeedback.type === "success"
+                  ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20"
+                  : "bg-red-500/10 text-red-200 border border-red-500/20"
+              }`}
+            >
+              {bookingActionFeedback.message}
+            </div>
+          )}
+
+          {/* Loading state */}
+          {bookingsLoading ? (
+            <div className="mt-6 rounded-4xl border border-slate-800 bg-slate-950/80 p-8 text-center text-slate-400">
+              Loading booking requests...
+            </div>
+
+          /* Empty state */
+          ) : ownerBookings.length === 0 ? (
+            <div className="mt-6 rounded-4xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
+              No booking requests have been received yet.
+            </div>
+
+          /* Grouped list */
+          ) : (
+            <div className="mt-6 space-y-4">
+              {bookingsByBoarding.map((group) => {
+                const isExpanded = !!expandedBoardings[group.boardingId];
+                const pendingCount = group.bookings.filter(
+                  (b) => getBookingStatus(b).toLowerCase() === "pending"
+                ).length;
+
+                return (
+                  <div
+                    key={group.boardingId}
+                    className="rounded-3xl border border-slate-800 bg-slate-950/90 overflow-hidden"
+                  >
+                    {/* Boarding group header — clickable to expand/collapse */}
+                    <button
+                      type="button"
+                      onClick={() => toggleBoardingExpand(group.boardingId)}
+                      className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-slate-900/60 transition"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Chevron */}
+                        <span
+                          className={`shrink-0 text-slate-400 transition-transform duration-200 ${
+                            isExpanded ? "rotate-90" : "rotate-0"
+                          }`}
+                        >
+                          ▶
+                        </span>
+                        <h3 className="truncate text-base font-semibold text-white">
+                          {group.boardingName}
+                        </h3>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {pendingCount > 0 && (
+                          <span className="inline-flex items-center rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-200">
+                            {pendingCount} pending
+                          </span>
+                        )}
+                        <span className="inline-flex items-center rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
+                          {group.bookings.length} total
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Booking cards inside this boarding */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-800 divide-y divide-slate-800/60">
+                        {group.bookings.map((booking) => {
+                          const status = getBookingStatus(booking);
+                          const isPending = status.toLowerCase() === "pending";
+
+                          return (
+                            <div
+                              key={booking.id || booking.bookingId || `${group.boardingId}-${booking.id}`}
+                              className="px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              {/* Student info */}
+                              <div className="space-y-1">
+                                <p className="text-sm font-semibold text-white">
+                                  {getBookingStudentName(booking)}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  Start date: {getBookingStartDate(booking)}
+                                </p>
+                              </div>
+
+                              {/* Status + action */}
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                                    isPending
+                                      ? "bg-amber-500/20 text-amber-200"
+                                      : "bg-emerald-500/10 text-emerald-200"
+                                  }`}
+                                >
+                                  {status}
+                                </span>
+                                {isPending && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleConfirmBooking(booking.id || booking.bookingId)
+                                    }
+                                    className="rounded-3xl bg-cyan-500 px-4 py-1.5 text-xs font-semibold text-slate-950 hover:bg-cyan-400 transition"
+                                  >
+                                    Confirm
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ── Error banner ─────────────────────────────────────────── */}
         {errorMessage ? (
           <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-red-100">
             {errorMessage}
           </div>
         ) : null}
 
+        {/* ── Boarding listings ─────────────────────────────────────── */}
         {loading ? (
           <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-12 text-center text-slate-400">
             Loading your listings...
@@ -295,22 +594,47 @@ export default function OwnerDashboard() {
                 boardings.map((boarding) => {
                   const isEditing = editBoardingId === boarding.boardingID;
                   return (
-                    <article key={boarding.boardingID} className="rounded-4xl border border-slate-800 bg-slate-950/90 p-6 shadow-xl">
+                    <article
+                      key={boarding.boardingID}
+                      className="rounded-4xl border border-slate-800 bg-slate-950/90 p-6 shadow-xl"
+                    >
                       <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start">
                         <div className="space-y-3">
                           <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
-                            <span className="rounded-full bg-slate-800 px-3 py-1">{boarding.boardingType || "Type not set"}</span>
-                            <span className="rounded-full bg-slate-800 px-3 py-1">{boarding.distance} km</span>
-                            <span className="rounded-full bg-slate-800 px-3 py-1">{boarding.availableSpace} spaces</span>
+                            <span className="rounded-full bg-slate-800 px-3 py-1">
+                              {boarding.boardingType || "Type not set"}
+                            </span>
+                            <span className="rounded-full bg-slate-800 px-3 py-1">
+                              {boarding.distance} km
+                            </span>
+                            <span className="rounded-full bg-slate-800 px-3 py-1">
+                              {boarding.availableSpace} spaces
+                            </span>
                           </div>
                           <h3 className="text-xl font-semibold text-white">{boarding.boardingName}</h3>
                           <p className="text-slate-400">{boarding.address}</p>
                           <p className="text-slate-300">{boarding.description}</p>
                           <div className="flex flex-wrap gap-2">
-                            {boarding.freeWifi && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">📶 WiFi</span>}
-                            {boarding.attachedBathroom && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🚿 Bathroom</span>}
-                            {boarding.parking && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🅿 Parking</span>}
-                            {boarding.kitchen && <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">🍳 Kitchen</span>}
+                            {boarding.freeWifi && (
+                              <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                📶 WiFi
+                              </span>
+                            )}
+                            {boarding.attachedBathroom && (
+                              <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                🚿 Bathroom
+                              </span>
+                            )}
+                            {boarding.parking && (
+                              <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                🅿 Parking
+                              </span>
+                            )}
+                            {boarding.kitchen && (
+                              <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                🍳 Kitchen
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col gap-3 sm:items-end">
@@ -333,9 +657,18 @@ export default function OwnerDashboard() {
                       </div>
 
                       {isEditing && (
-                        <form onSubmit={handleUpdate} className="mt-6 grid gap-4 rounded-3xl border border-slate-800 bg-slate-900/90 p-6">
+                        <form
+                          onSubmit={handleUpdate}
+                          className="mt-6 grid gap-4 rounded-3xl border border-slate-800 bg-slate-900/90 p-6"
+                        >
                           {feedback.message && (
-                            <div className={`rounded-2xl p-4 text-sm ${feedback.type === "success" ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20" : "bg-red-500/10 text-red-200 border border-red-500/20"}`}>
+                            <div
+                              className={`rounded-2xl p-4 text-sm ${
+                                feedback.type === "success"
+                                  ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20"
+                                  : "bg-red-500/10 text-red-200 border border-red-500/20"
+                              }`}
+                            >
                               {feedback.message}
                             </div>
                           )}

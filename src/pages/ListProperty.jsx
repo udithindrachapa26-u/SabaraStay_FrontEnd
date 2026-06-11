@@ -14,13 +14,22 @@ export default function ListProperty() {
     availableSpace: "",
     description: "",
     distance: "",
+    freeWifi: false,
+    attachedBathroom: false,
+    parking: false,
+    kitchen: false,
   });
 
   const [photos, setPhotos] = useState([]);
   const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
+  const MAX_PHOTOS = 4;
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, type, checked, value } = e.target;
+    setForm({
+      ...form,
+      [name]: type === "checkbox" ? checked : value,
+    });
     if (formFeedback.message) setFormFeedback({ message: "", type: "" });
   };
 
@@ -53,10 +62,24 @@ export default function ListProperty() {
       return;
     }
 
+    if (photos.length > MAX_PHOTOS) {
+      setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed. Please remove extra photos.`, type: "error" });
+      return;
+    }
+
     const data = new FormData();
-    Object.keys(form).forEach((key) => {
-      data.append(key, form[key]);
-    });
+    data.append("boardingName", form.boardingName);
+    data.append("boardingType", form.boardingType);
+    data.append("address", form.address);
+    data.append("price", form.price);
+    data.append("totalRooms", form.totalRooms);
+    data.append("availableSpace", form.availableSpace);
+    data.append("description", form.description);
+    data.append("distance", form.distance);
+    data.append("freeWifi", form.freeWifi ? "1" : "0");
+    data.append("attachedBathroom", form.attachedBathroom ? "1" : "0");
+    data.append("parking", form.parking ? "1" : "0");
+    data.append("kitchen", form.kitchen ? "1" : "0");
 
     photos.forEach((photo) => {
       data.append("photos", photo);
@@ -66,7 +89,6 @@ export default function ListProperty() {
       await api.post("/boardings", data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -83,9 +105,9 @@ export default function ListProperty() {
     <div className="min-h-screen bg-blue-950 p-6 text-white">
       <form
         onSubmit={handleSubmit}
-        className="mx-auto max-w-2xl space-y-4 rounded-3xl bg-white/10 p-6 backdrop-blur"
+        className="mx-auto max-w-4xl space-y-6 rounded-3xl bg-white/10 p-8 backdrop-blur"
       >
-        <h1 className="text-2xl font-bold text-yellow-400">
+        <h1 className="text-3xl font-bold text-yellow-400">
           List Your Boarding
         </h1>
 
@@ -101,23 +123,131 @@ export default function ListProperty() {
           </div>
         )}
 
-        <input name="boardingName" onChange={handleChange} placeholder="Boarding Name*" className="input" />
-        <input name="boardingType" onChange={handleChange} placeholder="Type (Male/Female/Mixed)*" className="input" />
-        <input name="address" onChange={handleChange} placeholder="Address*" className="input" />
-        <input name="price" type="number" onChange={handleChange} placeholder="Monthly rate (Rs)*" className="input" />
-        <input name="totalRooms" type="number" onChange={handleChange} placeholder="Total Rooms*" className="input" />
-        <input name="availableSpace" type="number" onChange={handleChange} placeholder="Available Space*" className="input" />
-        <input name="distance" type="number" step="0.1" onChange={handleChange} placeholder="Distance from uni (km)*" className="input" />
+        {/* Basic Information */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Basic Information</h2>
+          <input name="boardingName" value={form.boardingName} onChange={handleChange} placeholder="Boarding Name*" className="input" />
+          <div className="grid grid-cols-2 gap-4">
+            <input name="boardingType" value={form.boardingType} onChange={handleChange} placeholder="Type (Male/Female/Mixed)*" className="input" />
+            <input name="distance" type="number" step="0.1" value={form.distance} onChange={handleChange} placeholder="Distance from uni (km)*" className="input" />
+          </div>
+          <input name="address" value={form.address} onChange={handleChange} placeholder="Address*" className="input" />
+        </div>
 
-        <textarea name="description" onChange={handleChange} placeholder="Description" className="input h-24" />
+        {/* Pricing & Capacity */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Pricing & Capacity</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="Monthly rate (Rs)*" className="input" />
+            <input name="totalRooms" type="number" value={form.totalRooms} onChange={handleChange} placeholder="Total Rooms*" className="input" />
+            <input name="availableSpace" type="number" value={form.availableSpace} onChange={handleChange} placeholder="Available Space*" className="input" />
+          </div>
+        </div>
 
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setPhotos([...e.target.files])}
-        />
+        {/* Description */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Description</h2>
+          <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your boarding, facilities, rules, etc.*" className="input h-28" />
+        </div>
 
-        <button className="w-full rounded-xl bg-yellow-400 py-2 font-semibold text-black">
+        {/* Amenities */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Amenities</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="freeWifi"
+                checked={form.freeWifi}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Free WiFi</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="attachedBathroom"
+                checked={form.attachedBathroom}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Attached Bathroom</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="parking"
+                checked={form.parking}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Parking</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="kitchen"
+                checked={form.kitchen}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Kitchen Access</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Photos */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Photos</h2>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              const selectedPhotos = Array.from(e.target.files);
+              const combined = [...photos, ...selectedPhotos].slice(0, MAX_PHOTOS);
+              setPhotos(combined);
+              if (combined.length > MAX_PHOTOS) {
+                setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed.`, type: "error" });
+              } else if (formFeedback.message) {
+                setFormFeedback({ message: "", type: "" });
+              }
+              e.target.value = "";
+            }}
+            className="w-full rounded-lg border-2 border-dashed border-yellow-400/50 bg-white/5 p-4 text-sm text-white/70 file:mr-3 file:rounded file:border-0 file:bg-yellow-400 file:px-3 file:py-2 file:text-black file:font-semibold"
+          />
+          {photos.length > 0 && (
+            <div className="space-y-2">
+              <p className={`text-sm ${photos.length > MAX_PHOTOS ? "text-red-300" : "text-emerald-300"}`}>
+                {photos.length}/{MAX_PHOTOS} photo(s) selected
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {photos.map((photo, idx) => (
+                  <div key={idx} className="relative rounded-lg overflow-hidden border border-yellow-400/30 bg-white/5 h-24 group">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Preview ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos(photos.filter((_, i) => i !== idx))}
+                      className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white opacity-90 hover:bg-black"
+                    >
+                      Remove
+                    </button>
+                    <div className="absolute left-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white">
+                      {idx + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button className="w-full rounded-xl bg-yellow-400 py-3 font-semibold text-black hover:bg-yellow-300 transition">
           Submit Boarding
         </button>
       </form>

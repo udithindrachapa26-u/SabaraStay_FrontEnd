@@ -49,10 +49,8 @@ function Login() {
       setTimeout(() => {
         if (role === "admin") {
           navigate("/admin/dashboard");
-        } else if (role === "owner") {
-          navigate("/owner/dashboard");
         } else {
-          navigate("/student/dashboard");
+          navigate("/home");
         }
       }, 500);
     } catch (error) {

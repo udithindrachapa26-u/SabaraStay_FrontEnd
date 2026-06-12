@@ -193,14 +193,15 @@ export default function Home() {
 
             <div className="rounded-[2rem] bg-white/10 border border-white/20 p-8 shadow-2xl backdrop-blur-xl">
               <form onSubmit={handleSearch} className="space-y-5">
+                <input
+                  name="q"
+                  value={filters.q}
+                  onChange={handleFilterChange}
+                  className="input w-full"
+                  placeholder="Search by name, address or description"
+                />
+
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    name="q"
-                    value={filters.q}
-                    onChange={handleFilterChange}
-                    className="input"
-                    placeholder="Search by name, address or description"
-                  />
                   <select
                     name="boardingType"
                     value={filters.boardingType}
@@ -212,6 +213,15 @@ export default function Home() {
                     <option value="Female">Female</option>
                     <option value="Mixed">Mixed</option>
                   </select>
+                  <input
+                    name="maxDistance"
+                    type="number"
+                    step="0.1"
+                    value={filters.maxDistance}
+                    onChange={handleFilterChange}
+                    className="input"
+                    placeholder="Max distance (km)"
+                  />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -253,41 +263,27 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    name="maxDistance"
-                    type="number"
-                    step="0.1"
-                    value={filters.maxDistance}
-                    onChange={handleFilterChange}
-                    className="input"
-                    placeholder="Max distance (km)"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="input flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="freeWifi"
-                        checked={filters.freeWifi}
-                        onChange={handleFilterChange}
-                        className="h-4 w-4"
-                      />
-                      Free WiFi
-                    </label>
-                    <label className="input flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="attachedBathroom"
-                        checked={filters.attachedBathroom}
-                        onChange={handleFilterChange}
-                        className="h-4 w-4"
-                      />
-                      Bathroom
-                    </label>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="freeWifi"
+                      checked={filters.freeWifi}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Free WiFi
+                  </label>
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="attachedBathroom"
+                      checked={filters.attachedBathroom}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Bathroom
+                  </label>
                   <label className="input flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"

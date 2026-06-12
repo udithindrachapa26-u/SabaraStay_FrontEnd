@@ -295,13 +295,13 @@ export default function OwnerDashboard() {
         prev.map((boarding) =>
           boarding.boardingID === editBoardingId
             ? {
-                ...boarding,
-                ...editForm,
-                freeWifi: editForm.freeWifi ? 1 : 0,
-                attachedBathroom: editForm.attachedBathroom ? 1 : 0,
-                parking: editForm.parking ? 1 : 0,
-                kitchen: editForm.kitchen ? 1 : 0,
-              }
+              ...boarding,
+              ...editForm,
+              freeWifi: editForm.freeWifi ? 1 : 0,
+              attachedBathroom: editForm.attachedBathroom ? 1 : 0,
+              parking: editForm.parking ? 1 : 0,
+              kitchen: editForm.kitchen ? 1 : 0,
+            }
             : boarding
         )
       );
@@ -442,11 +442,10 @@ export default function OwnerDashboard() {
           {/* Action feedback */}
           {bookingActionFeedback.message && (
             <div
-              className={`mt-4 rounded-2xl p-4 text-sm ${
-                bookingActionFeedback.type === "success"
+              className={`mt-4 rounded-2xl p-4 text-sm ${bookingActionFeedback.type === "success"
                   ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20"
                   : "bg-red-500/10 text-red-200 border border-red-500/20"
-              }`}
+                }`}
             >
               {bookingActionFeedback.message}
             </div>
@@ -458,13 +457,13 @@ export default function OwnerDashboard() {
               Loading booking requests...
             </div>
 
-          /* Empty state */
+            /* Empty state */
           ) : ownerBookings.length === 0 ? (
             <div className="mt-6 rounded-4xl border border-dashed border-slate-700 bg-slate-900/80 p-8 text-center text-slate-400">
               No booking requests have been received yet.
             </div>
 
-          /* Grouped list */
+            /* Grouped list */
           ) : (
             <div className="mt-6 space-y-4">
               {bookingsByBoarding.map((group) => {
@@ -487,9 +486,8 @@ export default function OwnerDashboard() {
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Chevron */}
                         <span
-                          className={`shrink-0 text-slate-400 transition-transform duration-200 ${
-                            isExpanded ? "rotate-90" : "rotate-0"
-                          }`}
+                          className={`shrink-0 text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-90" : "rotate-0"
+                            }`}
                         >
                           ▶
                         </span>
@@ -534,11 +532,10 @@ export default function OwnerDashboard() {
                               {/* Status + action */}
                               <div className="flex items-center gap-3">
                                 <span
-                                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                                    isPending
+                                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${isPending
                                       ? "bg-amber-500/20 text-amber-200"
                                       : "bg-emerald-500/10 text-emerald-200"
-                                  }`}
+                                    }`}
                                 >
                                   {status}
                                 </span>
@@ -672,11 +669,10 @@ export default function OwnerDashboard() {
                         >
                           {feedback.message && (
                             <div
-                              className={`rounded-2xl p-4 text-sm ${
-                                feedback.type === "success"
+                              className={`rounded-2xl p-4 text-sm ${feedback.type === "success"
                                   ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/20"
                                   : "bg-red-500/10 text-red-200 border border-red-500/20"
-                              }`}
+                                }`}
                             >
                               {feedback.message}
                             </div>

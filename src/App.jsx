@@ -13,6 +13,7 @@ import SearchResults from "./pages/SearchResults";
 import HowItWorks from "./pages/HowItWorks";
 import About from "./pages/About";
 import Help from "./pages/Help";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/owner/dashboard" element={<OwnerDashboard />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/list-property" element={<ListProperty />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/about" element={<About />} />

@@ -83,6 +83,18 @@ export default function Navbar() {
               Owner Dashboard
             </Link>
           )}
+          {token && role === "admin" && (
+            <Link
+              to="/admin/dashboard"
+              className="
+                text-white/90
+                hover:text-yellow-400
+                transition
+              "
+            >
+              Admin Dashboard
+            </Link>
+          )}
 
           {/* Not logged in */}
           {!token && (

@@ -100,7 +100,7 @@ export default function Home() {
           <Navbar />
 
           {/* Categories */}
-          <section className="flex justify-center gap-12 mt-14 flex-wrap">
+          <section className="flex justify-center gap-12 mt-10" id="categories">
             {[
               {
                 icon: BedDouble,

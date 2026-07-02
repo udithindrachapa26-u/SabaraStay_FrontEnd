@@ -79,30 +79,6 @@ export default function Home() {
     navigate(`/search${queryString ? `?${queryString}` : ""}`);
   };
 
-  const actions = [
-    {
-      icon: BedDouble,
-      label: "Short Term",
-      color: "from-indigo-400 to-violet-500",
-    },
-    {
-      icon: HomeIcon,
-      label: "Long Term",
-      color: "from-emerald-400 to-teal-500",
-    },
-    {
-      icon: GraduationCap,
-      label: "For Lecturers",
-      color: "from-sky-400 to-blue-500",
-    },
-    {
-      icon: MapPinPlus,
-      label: "Add Property",
-      color: "from-yellow-400 to-orange-500",
-      action: () => navigate("/list-property"),
-    },
-  ];
-
   return (
     <div className="font-sans overflow-x-hidden">
 
@@ -187,7 +163,7 @@ export default function Home() {
           </section>
 
           {/* Hero Main */}
-          <section className="max-w-7xl mx-auto px-10 mt-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <section className="max-w-7xl mx-auto px-10 mt-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-5xl xl:text-6xl font-extrabold leading-tight">
                 Find <br />
@@ -272,77 +248,88 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="freeWifi"
-                      checked={filters.freeWifi}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Free WiFi
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="attachedBathroom"
-                      checked={filters.attachedBathroom}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Bathroom
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="parking"
-                      checked={filters.parking}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Parking
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="kitchen"
-                      checked={filters.kitchen}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Kitchen
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="shortTerm"
-                      checked={filters.shortTerm}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Short Term
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="longTerm"
-                      checked={filters.longTerm}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Long Term
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="forLecturers"
-                      checked={filters.forLecturers}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    For Lecturers
-                  </label>
+                {/* Amenities */}
+                <div>
+                  <p className="text-sm text-yellow-300 font-semibold mb-2">Amenities</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="freeWifi"
+                        checked={filters.freeWifi}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Free WiFi
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="attachedBathroom"
+                        checked={filters.attachedBathroom}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Bathroom
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="parking"
+                        checked={filters.parking}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Parking
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="kitchen"
+                        checked={filters.kitchen}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Kitchen
+                    </label>
+                  </div>
+                </div>
+
+                {/* Availability */}
+                <div>
+                  <p className="text-sm text-yellow-300 font-semibold mb-2">Availability</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="shortTerm"
+                        checked={filters.shortTerm}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Short Term
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="longTerm"
+                        checked={filters.longTerm}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Long Term
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="forLecturers"
+                        checked={filters.forLecturers}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Lecturers
+                    </label>
+                  </div>
                 </div>
 
                 <button

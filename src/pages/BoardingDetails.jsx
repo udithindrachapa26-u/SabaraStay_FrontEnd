@@ -1,19 +1,151 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import api from "../api/axios";
 import { createBooking } from "../services/bookingService";
 import { addReview, getReviews } from "../services/reviewService";
 
+// ─── Lightbox component ───────────────────────────────────────────────────────
+function Lightbox({ photos, startIndex, onClose }) {
+  const [current, setCurrent] = useState(startIndex);
+
+  // keyboard navigation
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") setCurrent((i) => (i + 1) % photos.length);
+      if (e.key === "ArrowLeft") setCurrent((i) => (i - 1 + photos.length) % photos.length);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [photos.length, onClose]);
+
+  // prevent background scroll while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const prev = () => setCurrent((i) => (i - 1 + photos.length) % photos.length);
+  const next = () => setCurrent((i) => (i + 1) % photos.length);
+
+  return (
+    /* backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* modal box — stop propagation so clicking image doesn't close */}
+      <div
+        className="relative flex flex-col items-center max-w-5xl w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* close button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-12 right-0 text-white/70 hover:text-white text-3xl font-light leading-none transition"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
+        {/* main image */}
+        <div className="relative w-full">
+          <img
+            key={current}
+            src={photos[current]}
+            alt={`Photo ${current + 1}`}
+            className="w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl"
+            style={{ animation: "fadeIn 0.18s ease" }}
+          />
+
+          {/* prev / next arrows — only show when more than 1 photo */}
+          {photos.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition text-lg"
+                aria-label="Previous"
+              >
+                ‹
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition text-lg"
+                aria-label="Next"
+              >
+                ›
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* dot indicators + counter */}
+        {photos.length > 1 && (
+          <div className="mt-4 flex items-center gap-3">
+            {photos.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-2 rounded-full transition-all ${i === current ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"}`}
+                aria-label={`Go to photo ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
+        <p className="mt-3 text-sm text-white/50">
+          {current + 1} / {photos.length} &nbsp;·&nbsp; Press ESC or click outside to close
+        </p>
+      </div>
+
+      {/* inline fade-in keyframe */}
+      <style>{`@keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }`}</style>
+    </div>
+  );
+}
+
+// ─── BoardingDetails ──────────────────────────────────────────────────────────
 export default function BoardingDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
   const boardingId = Number(id);
 
-  // STATE
+  const [boarding, setBoarding] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [reviews, setReviews] = useState([]);
   const [feedback, setFeedback] = useState({ message: "", type: "" });
   const [showBookingConfirm, setShowBookingConfirm] = useState(false);
+
+  // lightbox state
+  const [lightbox, setLightbox] = useState({ open: false, index: 0 });
+  const openLightbox = (index) => setLightbox({ open: true, index });
+  const closeLightbox = () => setLightbox({ open: false, index: 0 });
+
+  // LOAD BOARDING DETAILS
+  useEffect(() => {
+    if (!boardingId || Number.isNaN(boardingId)) {
+      setError("Invalid boarding ID");
+      setLoading(false);
+      return;
+    }
+    const fetchBoardingDetails = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await api.get(`/boardings/${boardingId}`);
+        setBoarding(res.data);
+      } catch (err) {
+        console.error("Failed to load boarding details", err);
+        setError(err.response?.data?.message || "Failed to load boarding details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBoardingDetails();
+  }, [boardingId]);
 
   // LOAD REVIEWS
   useEffect(() => {
@@ -33,19 +165,16 @@ export default function BoardingDetails() {
   // BOOK NOW
   const handleBookNow = () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setFeedback({ message: "Please log in before booking.", type: "error" });
       navigate("/login");
       return;
     }
-
     setShowBookingConfirm(true);
   };
 
   const confirmBooking = async () => {
     setShowBookingConfirm(false);
-
     try {
       await createBooking(boardingId);
       setFeedback({ message: "Booking confirmed! Redirecting to success page...", type: "success" });
@@ -64,48 +193,104 @@ export default function BoardingDetails() {
   // ADD REVIEW
   const handleAddReview = async () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setFeedback({ message: "Please log in to add a review.", type: "error" });
       navigate("/login");
       return;
     }
-
     if (!comment) {
       setFeedback({ message: "Please enter a comment before submitting.", type: "error" });
       return;
     }
-
     try {
-      await addReview({
-        boardingId,
-        rating: Number(rating),
-        comment,
-      });
-
+      await addReview({ boardingId, rating: Number(rating), comment });
       setFeedback({ message: "Review added successfully!", type: "success" });
       setComment("");
       setRating(5);
-      loadReviews(); // reload reviews
+      loadReviews();
     } catch (err) {
       console.error("Review add failed", err);
       setFeedback({
-        message:
-          err.response?.data?.message || err.message || "Review add failed",
+        message: err.response?.data?.message || err.message || "Review add failed",
         type: "error",
       });
     }
   };
 
+  const SERVER_URL = "http://localhost:5000";
+
+  const defaultPhotos = [
+    "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80",
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600 font-medium animate-pulse">Loading boarding details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !boarding) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+        <div className="bg-white p-8 rounded-2xl shadow-md max-w-md w-full text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Error Occurred</h2>
+          <p className="text-gray-600 mb-6">{error || "Boarding place details not found."}</p>
+          <Link to="/home" className="inline-block bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-blue-800 transition">
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Resolve photos
+  const boardingPhotos = [...(boarding.photos || [])];
+  while (boardingPhotos.length < 3) {
+    boardingPhotos.push(defaultPhotos[boardingPhotos.length]);
+  }
+
+  const getPhotoUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+
+    const normalizedPath = String(path).replace(/\\/g, "/");
+    const relativeMatch = normalizedPath.match(/(?:^|\/)(uploads\/.+)$/);
+    const relativePath = relativeMatch ? relativeMatch[1] : normalizedPath.replace(/^\/+/, "");
+    return `${SERVER_URL}/${relativePath}`;
+  };
+
+  // Resolved URL array for the lightbox
+  const resolvedPhotos = boardingPhotos.map(getPhotoUrl);
+
+  const facilities = [];
+  if (boarding.freeWifi) facilities.push({ name: "Free Wi-Fi", icon: "📶" });
+  if (boarding.attachedBathroom) facilities.push({ name: "Attached Bathroom", icon: "🚽" });
+  if (boarding.parking) facilities.push({ name: "Parking Space", icon: "🚗" });
+  if (boarding.kitchen) facilities.push({ name: "Kitchen Access", icon: "🍳" });
+
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
+      {/* Lightbox */}
+      {lightbox.open && (
+        <Lightbox
+          photos={resolvedPhotos}
+          startIndex={lightbox.index}
+          onClose={closeLightbox}
+        />
+      )}
+
       {/* HEADER */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <Link
-            to="/home"
-            className="text-sm text-blue-700 font-medium hover:underline"
-          >
+          <Link to="/home" className="text-sm text-blue-700 font-medium hover:underline">
             ← Back to Home
           </Link>
         </div>
@@ -129,93 +314,150 @@ export default function BoardingDetails() {
         {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* Images */}
+          {/* ── Photo grid with click-to-zoom ── */}
           <div className="grid grid-cols-3 gap-4">
-            <img
-              src="https://images.unsplash.com/photo-1586105251261-72a756497a11"
-              className="col-span-2 h-72 w-full object-cover rounded-xl shadow"
-            />
+            {/* Large main photo */}
+            <button
+              type="button"
+              onClick={() => openLightbox(0)}
+              className="col-span-2 h-72 overflow-hidden rounded-xl shadow group relative focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label="View photo 1"
+            >
+              <img
+                src={getPhotoUrl(boardingPhotos[0])}
+                alt={`${boarding.boardingName} main`}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              {/* zoom hint overlay */}
+              <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-colors duration-200">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                  🔍 View
+                </span>
+              </span>
+            </button>
+
+            {/* Two smaller photos */}
             <div className="flex flex-col gap-4">
-              <img
-                src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
-                className="h-34 w-full object-cover rounded-xl shadow"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
-                className="h-34 w-full object-cover rounded-xl shadow"
-              />
+              {[1, 2].map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => openLightbox(i)}
+                  className="h-[136px] overflow-hidden rounded-xl shadow group relative focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  aria-label={`View photo ${i + 1}`}
+                >
+                  <img
+                    src={getPhotoUrl(boardingPhotos[i])}
+                    alt={`${boarding.boardingName} view ${i}`}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-colors duration-200">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                      🔍 View
+                    </span>
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* hint text */}
+          <p className="text-xs text-gray-400 -mt-2">Click any photo to zoom in</p>
+
           {/* Title */}
           <div className="bg-white rounded-xl p-6 shadow">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Green View Boarding
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Near Sabaragamuwa University
-            </p>
+            <div className="flex justify-between items-start gap-4">
+              <div>
+                <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-md mb-2 uppercase tracking-wide">
+                  {boarding.boardingType}
+                </span>
+                <h1 className="text-2xl font-bold text-gray-900">{boarding.boardingName}</h1>
+                <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">📍 {boarding.address}</p>
+              </div>
+              <div className="text-right">
+                <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-md mb-2 ${boarding.availableSpace > 0 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+                  {boarding.availableSpace > 0 ? "Available" : "Fully Booked"}
+                </span>
+                <p className="text-xs text-gray-500">{boarding.availableSpace} of {boarding.totalRooms} rooms left</p>
+              </div>
+            </div>
           </div>
 
           {/* About */}
           <div className="bg-white rounded-xl p-6 shadow">
-            <h2 className="font-semibold text-gray-900 mb-2">
-              About this boarding
-            </h2>
-            <p className="text-sm text-gray-600">
-              Comfortable and secure boarding place with all essential
-              facilities for students.
-            </p>
+            <h2 className="font-semibold text-gray-900 mb-2">About this boarding</h2>
+            <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{boarding.description}</p>
+            {boarding.distance !== undefined && boarding.distance !== null && (
+              <div className="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-600 flex items-center gap-2">
+                🚀 <span className="font-semibold text-gray-900">{boarding.distance} km</span> to Sabaragamuwa University campus.
+              </div>
+            )}
           </div>
 
           {/* Facilities */}
           <div className="bg-white rounded-xl p-6 shadow">
-            <h2 className="font-semibold text-gray-900 mb-4">
-              Facilities
-            </h2>
+            <h2 className="font-semibold text-gray-900 mb-4">Facilities & Amenities</h2>
+            {facilities.length === 0 ? (
+              <p className="text-sm text-gray-500">No additional facilities listed by the owner.</p>
+            ) : (
+              <div className="flex flex-wrap gap-3 text-sm">
+                {facilities.map((item, i) => (
+                  <span key={i} className="bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>{item.icon}</span>
+                    <span>{item.name}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
-            <div className="flex flex-wrap gap-3 text-sm">
-              {[
-                "Free Wi-Fi",
-                "Attached Bathroom",
-                "Study Table",
-                "Parking",
-                "24/7 Water",
-                "Security",
-              ].map((item, i) => (
-                <span
-                  key={i}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
+          {/* Rent Availability */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold text-gray-900 mb-4">Rental Duration & Availability</h2>
+            {!(boarding.shortTerm || boarding.longTerm || boarding.forLecturers) ? (
+              <p className="text-sm text-gray-500">No specific rental terms listed by the owner.</p>
+            ) : (
+              <div className="flex flex-wrap gap-3 text-sm">
+                {!!boarding.shortTerm && (
+                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>⏱️</span>
+                    <span>Short Term Stay</span>
+                  </span>
+                )}
+                {!!boarding.longTerm && (
+                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>📅</span>
+                    <span>Long Term Stay</span>
+                  </span>
+                )}
+                {!!boarding.forLecturers && (
+                  <span className="bg-sky-50 text-sky-700 border border-sky-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>👨‍🏫</span>
+                    <span>For Lecturers</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ADD REVIEW */}
           <div className="bg-white rounded-xl p-6 shadow">
             <h2 className="font-semibold mb-4">⭐ Add Your Review</h2>
-
             <select
               value={rating}
               onChange={(e) => setRating(Number(e.target.value))}
               className="border rounded p-2 w-full mb-3"
             >
               {[5, 4, 3, 2, 1].map((r) => (
-                <option key={r} value={r}>
-                  {r} Stars
-                </option>
+                <option key={r} value={r}>{r} Stars</option>
               ))}
             </select>
-
             <textarea
               placeholder="Write your review..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               className="border rounded p-2 w-full mb-3"
             />
-
             <button
               onClick={handleAddReview}
               className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -227,16 +469,13 @@ export default function BoardingDetails() {
           {/* REVIEWS LIST */}
           <div className="bg-white rounded-xl p-6 shadow">
             <h2 className="font-semibold mb-4">🗣 Student Reviews</h2>
-
             {reviews.length === 0 ? (
               <p className="text-gray-500">No reviews yet</p>
             ) : (
               reviews.map((r) => (
                 <div key={r.reviewID} className="border-b py-3">
                   <p className="font-medium">{r.firstName}</p>
-                  <p className="text-yellow-500">
-                    {"★".repeat(r.rating)}
-                  </p>
+                  <p className="text-yellow-500">{"★".repeat(r.rating)}</p>
                   <p className="text-sm text-gray-600">{r.comment}</p>
                 </div>
               ))
@@ -246,33 +485,24 @@ export default function BoardingDetails() {
 
         {/* RIGHT SIDEBAR */}
         <div className="space-y-6">
+          {/* Monthly Rent Card */}
           <div className="bg-white rounded-xl p-6 shadow">
             <p className="text-gray-500 text-sm">Monthly Rent</p>
             <h3 className="text-2xl font-bold text-blue-900 mt-1">
-              LKR 8,000
+              LKR {Number(boarding.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h3>
 
             {showBookingConfirm ? (
               <div className="mt-6 space-y-4 rounded-3xl border border-indigo-100 bg-indigo-50 p-5">
-                <div className="text-sm font-semibold text-indigo-900">
-                  Confirm Booking
-                </div>
+                <div className="text-sm font-semibold text-indigo-900">Confirm Booking</div>
                 <p className="text-sm text-gray-700">
                   Are you sure you want to book this boarding? Please confirm to complete your reservation.
                 </p>
                 <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={cancelBooking}
-                    className="flex-1 rounded-xl border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                  >
+                  <button type="button" onClick={cancelBooking} className="flex-1 rounded-xl border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
                     Back
                   </button>
-                  <button
-                    type="button"
-                    onClick={confirmBooking}
-                    className="flex-1 rounded-xl bg-blue-700 py-2 text-sm font-semibold text-white hover:bg-blue-800"
-                  >
+                  <button type="button" onClick={confirmBooking} className="flex-1 rounded-xl bg-blue-700 py-2 text-sm font-semibold text-white hover:bg-blue-800">
                     Confirm
                   </button>
                 </div>
@@ -280,12 +510,42 @@ export default function BoardingDetails() {
             ) : (
               <button
                 onClick={handleBookNow}
-                className="mt-4 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800"
+                disabled={boarding.availableSpace <= 0}
+                className={`mt-4 w-full text-white py-2 rounded-lg transition ${boarding.availableSpace <= 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800"}`}
               >
-                Book Boarding
+                {boarding.availableSpace <= 0 ? "Fully Booked" : "Book Boarding"}
               </button>
             )}
           </div>
+
+          {/* Owner Details Card */}
+          {boarding.owner && (
+            <div className="bg-white rounded-xl p-6 shadow">
+              <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">👤 Property Owner</h4>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider">Name</p>
+                  <p className="font-medium text-gray-800">{boarding.owner.firstName} {boarding.owner.lastName}</p>
+                </div>
+                {boarding.owner.contactNo && (
+                  <div>
+                    <p className="text-gray-500 text-xs uppercase tracking-wider">Contact Number</p>
+                    <a href={`tel:${boarding.owner.contactNo}`} className="font-medium text-blue-700 hover:underline flex items-center gap-1.5 mt-0.5">
+                      📞 {boarding.owner.contactNo}
+                    </a>
+                  </div>
+                )}
+                {boarding.owner.email && (
+                  <div>
+                    <p className="text-gray-500 text-xs uppercase tracking-wider">Email Address</p>
+                    <a href={`mailto:${boarding.owner.email}`} className="font-medium text-blue-700 hover:underline flex items-center gap-1.5 mt-0.5">
+                      ✉️ {boarding.owner.email}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

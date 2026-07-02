@@ -15,7 +15,7 @@ export default function Navbar() {
     <nav
       className="
         sticky top-0 z-50
-        bg-[#173565]/80
+        bg-[#111d35]/80
         backdrop-blur-lg
         border-b border-white/10
       "
@@ -30,6 +30,30 @@ export default function Navbar() {
           <span className="text-white">Sabra</span>
           <span className="text-yellow-400">Stay</span>
         </Link>
+
+        {/* CENTER - Nav Links */}
+            <div className="flex-1 flex justify-center gap-8">
+              <Link
+                to="/how-it-works"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                How It Works
+              </Link>
+
+              <Link
+                to="/about"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                About
+              </Link>
+
+              <Link
+                to="/help"
+                className="text-sm text-white/90 hover:text-yellow-400 transition"
+              >
+                Help
+              </Link>
+            </div>
 
         {/* NAV LINKS */}
         <div className="flex items-center gap-6 text-sm font-medium">
@@ -59,6 +83,18 @@ export default function Navbar() {
               Owner Dashboard
             </Link>
           )}
+          {token && role === "admin" && (
+            <Link
+              to="/admin/dashboard"
+              className="
+                text-white/90
+                hover:text-yellow-400
+                transition
+              "
+            >
+              Admin Dashboard
+            </Link>
+          )}
 
           {/* Not logged in */}
           {!token && (
@@ -75,8 +111,8 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/register"
-                className="
+                  to="/register"
+                  className="
                   bg-yellow-400
                   text-[#173565]
                   px-4 py-2 rounded-lg
@@ -110,3 +146,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

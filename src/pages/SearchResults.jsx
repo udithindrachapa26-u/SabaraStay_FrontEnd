@@ -60,7 +60,7 @@ export default function SearchResults() {
     activeFilters.push(`Max rooms: ${searchParams.get("maxRooms")}`);
   if (searchParams.get("maxDistance"))
     activeFilters.push(`Max distance: ${searchParams.get("maxDistance")}`);
-  ["freeWifi", "attachedBathroom", "parking", "kitchen"].forEach((key) => {
+  ["freeWifi", "attachedBathroom", "parking", "kitchen", "shortTerm", "longTerm", "forLecturers"].forEach((key) => {
     if (searchParams.get(key) === "true") {
       const label = key
         .replace(/([A-Z])/g, " $1")
@@ -260,6 +260,9 @@ export default function SearchResults() {
                     {!!boarding.attachedBathroom && <span>✔ Attached Bathroom</span>}
                     {!!boarding.parking && <span>✔ Parking</span>}
                     {!!boarding.kitchen && <span>✔ Kitchen</span>}
+                    {!!boarding.shortTerm && <span>✔ Short Term</span>}
+                    {!!boarding.longTerm && <span>✔ Long Term</span>}
+                    {!!boarding.forLecturers && <span>✔ For Lecturers</span>}
                   </div>
 
                   <div className="mt-6 flex items-center justify-between gap-3">

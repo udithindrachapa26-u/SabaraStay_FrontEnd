@@ -415,6 +415,9 @@ export default function AdminDashboard() {
                                   <span className={boarding.attachedBathroom ? "text-emerald-400" : "text-slate-600 line-through"}>🛁 Attached Bathroom</span>
                                   <span className={boarding.parking ? "text-emerald-400" : "text-slate-600 line-through"}>🚗 Parking</span>
                                   <span className={boarding.kitchen ? "text-emerald-400" : "text-slate-600 line-through"}>🍳 Kitchen</span>
+                                  <span className={boarding.shortTerm ? "text-emerald-400" : "text-slate-600 line-through"}>⏱️ Short Term</span>
+                                  <span className={boarding.longTerm ? "text-emerald-400" : "text-slate-600 line-through"}>📅 Long Term</span>
+                                  <span className={boarding.forLecturers ? "text-emerald-400" : "text-slate-600 line-through"}>👨‍🏫 For Lecturers</span>
                                 </div>
                               </div>
                               

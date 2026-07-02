@@ -42,6 +42,9 @@ export default function Home() {
     attachedBathroom: false,
     parking: false,
     kitchen: false,
+    shortTerm: false,
+    longTerm: false,
+    forLecturers: false,
   });
 
   const handleFilterChange = (e) => {
@@ -68,6 +71,9 @@ export default function Home() {
     if (filters.attachedBathroom) query.set("attachedBathroom", "true");
     if (filters.parking) query.set("parking", "true");
     if (filters.kitchen) query.set("kitchen", "true");
+    if (filters.shortTerm) query.set("shortTerm", "true");
+    if (filters.longTerm) query.set("longTerm", "true");
+    if (filters.forLecturers) query.set("forLecturers", "true");
 
     const queryString = query.toString();
     navigate(`/search${queryString ? `?${queryString}` : ""}`);
@@ -124,16 +130,19 @@ export default function Home() {
                 icon: BedDouble,
                 label: "Short Term",
                 color: "from-indigo-400 to-violet-500",
+                action: () => navigate("/search?shortTerm=true"),
               },
               {
                 icon: HomeIcon,
                 label: "Long Term",
                 color: "from-emerald-400 to-teal-500",
+                action: () => navigate("/search?longTerm=true"),
               },
               {
                 icon: GraduationCap,
                 label: "For Lecturers",
                 color: "from-sky-400 to-blue-500",
+                action: () => navigate("/search?forLecturers=true"),
               },
               {
                 icon: MapPinPlus,
@@ -303,6 +312,36 @@ export default function Home() {
                       className="h-4 w-4"
                     />
                     Kitchen
+                  </label>
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="shortTerm"
+                      checked={filters.shortTerm}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Short Term
+                  </label>
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="longTerm"
+                      checked={filters.longTerm}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    Long Term
+                  </label>
+                  <label className="input flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="forLecturers"
+                      checked={filters.forLecturers}
+                      onChange={handleFilterChange}
+                      className="h-4 w-4"
+                    />
+                    For Lecturers
                   </label>
                 </div>
 

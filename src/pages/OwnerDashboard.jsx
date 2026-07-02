@@ -86,6 +86,9 @@ export default function OwnerDashboard() {
     attachedBathroom: false,
     parking: false,
     kitchen: false,
+    shortTerm: false,
+    longTerm: false,
+    forLecturers: false,
   });
   const [feedback, setFeedback] = useState({ message: "", type: "" });
   const [ownerBookings, setOwnerBookings] = useState([]);
@@ -226,6 +229,9 @@ export default function OwnerDashboard() {
       attachedBathroom: Boolean(boarding.attachedBathroom) || false,
       parking: Boolean(boarding.parking) || false,
       kitchen: Boolean(boarding.kitchen) || false,
+      shortTerm: Boolean(boarding.shortTerm) || false,
+      longTerm: Boolean(boarding.longTerm) || false,
+      forLecturers: Boolean(boarding.forLecturers) || false,
     });
     setFeedback({ message: "", type: "" });
   };
@@ -245,6 +251,9 @@ export default function OwnerDashboard() {
       attachedBathroom: false,
       parking: false,
       kitchen: false,
+      shortTerm: false,
+      longTerm: false,
+      forLecturers: false,
     });
     setFeedback({ message: "", type: "" });
   };
@@ -287,6 +296,9 @@ export default function OwnerDashboard() {
           attachedBathroom: editForm.attachedBathroom ? 1 : 0,
           parking: editForm.parking ? 1 : 0,
           kitchen: editForm.kitchen ? 1 : 0,
+          shortTerm: editForm.shortTerm ? 1 : 0,
+          longTerm: editForm.longTerm ? 1 : 0,
+          forLecturers: editForm.forLecturers ? 1 : 0,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -301,6 +313,9 @@ export default function OwnerDashboard() {
               attachedBathroom: editForm.attachedBathroom ? 1 : 0,
               parking: editForm.parking ? 1 : 0,
               kitchen: editForm.kitchen ? 1 : 0,
+              shortTerm: editForm.shortTerm ? 1 : 0,
+              longTerm: editForm.longTerm ? 1 : 0,
+              forLecturers: editForm.forLecturers ? 1 : 0,
             }
             : boarding
         )
@@ -641,6 +656,21 @@ export default function OwnerDashboard() {
                                 🍳 Kitchen
                               </span>
                             )}
+                            {!!boarding.shortTerm && (
+                              <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300">
+                                ⏱️ Short Term
+                              </span>
+                            )}
+                            {!!boarding.longTerm && (
+                              <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300">
+                                📅 Long Term
+                              </span>
+                            )}
+                            {!!boarding.forLecturers && (
+                              <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300">
+                                👨‍🏫 For Lecturers
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col gap-3 sm:items-end">
@@ -786,6 +816,41 @@ export default function OwnerDashboard() {
                                   className="h-4 w-4 cursor-pointer"
                                 />
                                 <span className="text-sm">Kitchen Access</span>
+                              </label>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <p className="text-sm font-semibold text-yellow-300">Availability</p>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="shortTerm"
+                                  checked={editForm.shortTerm}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Short Term</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="longTerm"
+                                  checked={editForm.longTerm}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">Long Term</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/50 p-3 hover:bg-slate-700">
+                                <input
+                                  type="checkbox"
+                                  name="forLecturers"
+                                  checked={editForm.forLecturers}
+                                  onChange={handleChange}
+                                  className="h-4 w-4 cursor-pointer"
+                                />
+                                <span className="text-sm">For Lecturers</span>
                               </label>
                             </div>
                           </div>

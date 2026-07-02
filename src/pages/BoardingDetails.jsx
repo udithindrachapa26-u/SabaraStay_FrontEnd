@@ -260,7 +260,11 @@ export default function BoardingDetails() {
   const getPhotoUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http://") || path.startsWith("https://")) return path;
-    return `${SERVER_URL}/${path}`;
+
+    const normalizedPath = String(path).replace(/\\/g, "/");
+    const relativeMatch = normalizedPath.match(/(?:^|\/)(uploads\/.+)$/);
+    const relativePath = relativeMatch ? relativeMatch[1] : normalizedPath.replace(/^\/+/, "");
+    return `${SERVER_URL}/${relativePath}`;
   };
 
   // Resolved URL array for the lightbox
@@ -403,6 +407,35 @@ export default function BoardingDetails() {
                     <span>{item.name}</span>
                   </span>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Rent Availability */}
+          <div className="bg-white rounded-xl p-6 shadow">
+            <h2 className="font-semibold text-gray-900 mb-4">Rental Duration & Availability</h2>
+            {!(boarding.shortTerm || boarding.longTerm || boarding.forLecturers) ? (
+              <p className="text-sm text-gray-500">No specific rental terms listed by the owner.</p>
+            ) : (
+              <div className="flex flex-wrap gap-3 text-sm">
+                {!!boarding.shortTerm && (
+                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>⏱️</span>
+                    <span>Short Term Stay</span>
+                  </span>
+                )}
+                {!!boarding.longTerm && (
+                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>📅</span>
+                    <span>Long Term Stay</span>
+                  </span>
+                )}
+                {!!boarding.forLecturers && (
+                  <span className="bg-sky-50 text-sky-700 border border-sky-100 px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 shadow-sm">
+                    <span>👨‍🏫</span>
+                    <span>For Lecturers</span>
+                  </span>
+                )}
               </div>
             )}
           </div>

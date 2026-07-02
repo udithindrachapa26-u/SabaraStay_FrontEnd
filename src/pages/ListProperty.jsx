@@ -18,10 +18,14 @@ export default function ListProperty() {
     attachedBathroom: false,
     parking: false,
     kitchen: false,
+    shortTerm: false,
+    longTerm: false,
+    forLecturers: false,
   });
 
   const [photos, setPhotos] = useState([]);
   const [formFeedback, setFormFeedback] = useState({ message: "", type: "" });
+  const MAX_PHOTOS = 4;
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
@@ -56,15 +60,27 @@ export default function ListProperty() {
       return;
     }
 
-    if (photos.length === 0) {
-      setFormFeedback({ message: "Please upload at least one photo.", type: "error" });
+    if (photos.length > MAX_PHOTOS) {
+      setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed. Please remove extra photos.`, type: "error" });
       return;
     }
 
     const data = new FormData();
-    Object.keys(form).forEach((key) => {
-      data.append(key, form[key]);
-    });
+    data.append("boardingName", form.boardingName.trim());
+    data.append("boardingType", form.boardingType.trim());
+    data.append("address", form.address.trim());
+    data.append("price", Number(form.price));
+    data.append("totalRooms", Number(form.totalRooms));
+    data.append("availableSpace", Number(form.availableSpace));
+    data.append("description", form.description.trim());
+    data.append("distance", Number(form.distance));
+    data.append("freeWifi", form.freeWifi ? "1" : "0");
+    data.append("attachedBathroom", form.attachedBathroom ? "1" : "0");
+    data.append("parking", form.parking ? "1" : "0");
+    data.append("kitchen", form.kitchen ? "1" : "0");
+    data.append("shortTerm", form.shortTerm ? "1" : "0");
+    data.append("longTerm", form.longTerm ? "1" : "0");
+    data.append("forLecturers", form.forLecturers ? "1" : "0");
 
     photos.forEach((photo) => {
       data.append("photos", photo);
@@ -74,7 +90,6 @@ export default function ListProperty() {
       await api.post("/boardings", data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -183,6 +198,43 @@ export default function ListProperty() {
           </div>
         </div>
 
+        {/* Availability */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Availability</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="shortTerm"
+                checked={form.shortTerm}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Short Term</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="longTerm"
+                checked={form.longTerm}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Long Term</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="forLecturers"
+                checked={form.forLecturers}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>For Lecturers</span>
+            </label>
+          </div>
+        </div>
+
         {/* Photos */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-yellow-300">Photos</h2>
@@ -190,11 +242,46 @@ export default function ListProperty() {
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => setPhotos([...e.target.files])}
+            onChange={(e) => {
+              const selectedPhotos = Array.from(e.target.files);
+              const combined = [...photos, ...selectedPhotos].slice(0, MAX_PHOTOS);
+              setPhotos(combined);
+              if (combined.length > MAX_PHOTOS) {
+                setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed.`, type: "error" });
+              } else if (formFeedback.message) {
+                setFormFeedback({ message: "", type: "" });
+              }
+              e.target.value = "";
+            }}
             className="w-full rounded-lg border-2 border-dashed border-yellow-400/50 bg-white/5 p-4 text-sm text-white/70 file:mr-3 file:rounded file:border-0 file:bg-yellow-400 file:px-3 file:py-2 file:text-black file:font-semibold"
           />
           {photos.length > 0 && (
-            <p className="text-sm text-emerald-300">{photos.length} photo(s) selected</p>
+            <div className="space-y-2">
+              <p className={`text-sm ${photos.length > MAX_PHOTOS ? "text-red-300" : "text-emerald-300"}`}>
+                {photos.length}/{MAX_PHOTOS} photo(s) selected
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {photos.map((photo, idx) => (
+                  <div key={idx} className="relative rounded-lg overflow-hidden border border-yellow-400/30 bg-white/5 h-24 group">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Preview ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos(photos.filter((_, i) => i !== idx))}
+                      className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white opacity-90 hover:bg-black"
+                    >
+                      Remove
+                    </button>
+                    <div className="absolute left-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white">
+                      {idx + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../services/authService";
+import { loginUser, loginWithGoogle } from "../services/authService";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -17,6 +17,62 @@ function Login() {
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleGoogleCallback = async (response) => {
+    const idToken = response.credential;
+    try {
+      const res = await loginWithGoogle(idToken);
+      const userData = res.data.user || res.data || null;
+
+      if (!userData) {
+        throw new Error("Google login response did not include user data.");
+      }
+
+      const token =
+        res.data.token ||
+        res.data.accessToken ||
+        res.data?.user?.token ||
+        res.data?.user?.accessToken ||
+        "";
+      const role =
+        res.data.role ||
+        res.data?.user?.role ||
+        userData.role ||
+        "";
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      setFeedback({ message: "Login successful with Google", type: "success" });
+      setTimeout(() => {
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/home");
+        }
+      }, 500);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || error.message || "Google Sign-In failed";
+      setFeedback({ message: errorMessage, type: "error" });
+    }
+  };
+
+  useEffect(() => {
+    /* global google */
+    if (typeof google !== "undefined") {
+      google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+        callback: handleGoogleCallback,
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("google-signin-btn"),
+        { theme: "outline", size: "large", width: "100%" }
+      );
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +102,13 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(userData));
 
       setFeedback({ message: "Login successful", type: "success" });
-      setTimeout(() => navigate("/home"), 500);
+      setTimeout(() => {
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/home");
+        }
+      }, 500);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Invalid email or password";
@@ -140,7 +202,17 @@ function Login() {
 
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="relative flex py-4 items-center">
+          <div className="flex-grow border-t border-gray-200"></div>
+          <span className="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">or</span>
+          <div className="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div className="flex justify-center mb-4">
+          <div id="google-signin-btn" className="w-full"></div>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-sm text-center text-gray-600">
             Don't have an account?{" "}
             <Link

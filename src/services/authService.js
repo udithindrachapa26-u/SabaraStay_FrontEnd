@@ -19,3 +19,8 @@ export const forgotPassword = (emailData) => {
 export const resetPassword = (resetData) => {
   return api.post("/auth/reset-password", resetData);
 };
+
+// GOOGLE LOGIN
+export const loginWithGoogle = (idToken) => {
+  return api.post("/auth/google-login", { token: idToken });
+};

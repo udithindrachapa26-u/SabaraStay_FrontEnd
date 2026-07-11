@@ -8,6 +8,9 @@ export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   const [boardings, setBoardings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -57,7 +60,7 @@ export default function SearchResults() {
     activeFilters.push(`Max rooms: ${searchParams.get("maxRooms")}`);
   if (searchParams.get("maxDistance"))
     activeFilters.push(`Max distance: ${searchParams.get("maxDistance")}`);
-  ["freeWifi", "attachedBathroom", "parking", "kitchen"].forEach((key) => {
+  ["freeWifi", "attachedBathroom", "parking", "kitchen", "shortTerm", "longTerm", "forLecturers"].forEach((key) => {
     if (searchParams.get(key) === "true") {
       const label = key
         .replace(/([A-Z])/g, " $1")
@@ -144,17 +147,19 @@ export default function SearchResults() {
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              className="rounded-full bg-blue-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
             >
               Back to home
             </button>
-            <button
-              type="button"
-              onClick={() => navigate("/list-property")}
-              className="rounded-full bg-blue-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
-            >
-              Add boarding
-            </button>
+            {token && role === "owner" && (
+              <button
+                type="button"
+                onClick={() => navigate("/list-property")}
+                className="rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              >
+                Add boarding
+              </button>
+            )}
           </div>
         </div>
 
@@ -251,10 +256,13 @@ export default function SearchResults() {
                   </div>
 
                   <div className="mt-4 grid gap-2 text-sm text-slate-700">
-                    {boarding.freeWifi && <span>✔ Free Wifi</span>}
-                    {boarding.attachedBathroom && <span>✔ Attached Bathroom</span>}
-                    {boarding.parking && <span>✔ Parking</span>}
-                    {boarding.kitchen && <span>✔ Kitchen</span>}
+                    {!!boarding.freeWifi && <span>✔ Free Wifi</span>}
+                    {!!boarding.attachedBathroom && <span>✔ Attached Bathroom</span>}
+                    {!!boarding.parking && <span>✔ Parking</span>}
+                    {!!boarding.kitchen && <span>✔ Kitchen</span>}
+                    {!!boarding.shortTerm && <span>✔ Short Term</span>}
+                    {!!boarding.longTerm && <span>✔ Long Term</span>}
+                    {!!boarding.forLecturers && <span>✔ For Lecturers</span>}
                   </div>
 
                   <div className="mt-6 flex items-center justify-between gap-3">

@@ -8,7 +8,6 @@ function SearchIcon() {
     </svg>
   );
 }
-
 function BellIcon() {
   return (
     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -17,16 +16,6 @@ function BellIcon() {
     </svg>
   );
 }
-
-function UserIcon() {
-  return (
-    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
 function PlusIcon() {
   return (
     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -35,15 +24,17 @@ function PlusIcon() {
   );
 }
 
-export default function SubNav() {
+export default function SubNav({ title = "Appointment Management", onTabChange }) {
   const [query, setQuery] = useState("");
+
+  const rawName = localStorage.getItem("name") || "SR";
+  const initials = rawName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <div className="subnav">
-      {/* Breadcrumb */}
+      {/* Title */}
       <div className="subnav-breadcrumb">
-        <span>Appointment</span>
-        <span className="muted">Management</span>
+        <span className="subnav-title">{title}</span>
       </div>
 
       {/* Right controls */}
@@ -52,13 +43,16 @@ export default function SubNav() {
           <SearchIcon />
           <input
             type="text"
-            placeholder="Search...."
+            placeholder="Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
 
-        <button className="btn-add-listing">
+        <button
+          className="btn-add-listing"
+          onClick={() => onTabChange && onTabChange("add-listing")}
+        >
           <PlusIcon />
           Add Listing
         </button>
@@ -67,44 +61,10 @@ export default function SubNav() {
           <BellIcon />
         </button>
 
-        <button className="icon-btn" aria-label="Profile">
-          <UserIcon />
-        </button>
+        <div className="subnav-avatar" aria-label="Profile">
+          {initials}
+        </div>
       </div>
     </div>
   );
 }
-
-
-// import { BiSearch } from 'react-icons/bi';
-// import { FaRegBell } from "react-icons/fa6";
-// import { FaUser } from "react-icons/fa6";
-
-
-// export default function TitleSection() {
-//     return (
-//         <>
-//             <div className="titleSection">
-//                 <div className="section1">
-//                     <p className="heading">Appointment <span className="subheading">Management</span></p>
-//                 </div>
-//                 <div className="section2">
-//                     <div className="search">
-//                         <BiSearch/>
-//                         <input icon={BiSearch} type="text" placeholder="Search..." />
-//                     </div>
-//                     <div className="add">
-//                         <button className='addlist'>+ Add Listing</button>
-//                     </div>
-//                     <div className="notification">
-//                         <FaRegBell className='notificationsign'/>
-//                     </div>
-//                     <div className="userProfile">
-//                         <FaUser className='userProfilesign'/>
-//                     </div>
-//                 </div>
-//             </div>
-            
-//         </>
-//     );
-// }

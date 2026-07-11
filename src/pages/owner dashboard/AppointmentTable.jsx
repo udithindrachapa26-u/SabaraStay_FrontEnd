@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { appointments as initialData } from "../../../data/appointmentData";
+import { appointments as initialData } from "../../data/appointmentData";
 import AppointmentRow from "./AppointmentRow";
 
 export default function AppointmentTable() {

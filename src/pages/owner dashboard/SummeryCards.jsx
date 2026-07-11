@@ -1,4 +1,4 @@
-import { summaryCards } from "../../../data/appointmentData";
+import { summaryCards } from "../../data/appointmentData";
 
 /* ── Icons ── */
 function CalendarIcon() {

@@ -74,10 +74,27 @@ export default function StayCard({ boarding }) {
       {/* Content */}
       <div className="p-5 flex-1 flex flex-col justify-between text-gray-800 text-sm">
         <div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-bold tracking-widest text-blue-700 uppercase bg-blue-50 px-2 py-0.5 rounded">
-              {boarding.boardingType} stay
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-1">
+              <span className="text-[10px] font-bold tracking-widest text-blue-700 uppercase bg-blue-50 px-2 py-0.5 rounded">
+                {boarding.boardingType} stay
+              </span>
+              {!!boarding.shortTerm && (
+                <span className="text-[10px] font-bold tracking-widest text-indigo-700 uppercase bg-indigo-50 px-2 py-0.5 rounded">
+                  Short Term
+                </span>
+              )}
+              {!!boarding.longTerm && (
+                <span className="text-[10px] font-bold tracking-widest text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">
+                  Long Term
+                </span>
+              )}
+              {!!boarding.forLecturers && (
+                <span className="text-[10px] font-bold tracking-widest text-sky-700 uppercase bg-sky-50 px-2 py-0.5 rounded">
+                  For Lecturers
+                </span>
+              )}
+            </div>
             <span className="text-xs text-gray-500">
               {boarding.availableSpace} of {boarding.totalRooms} rooms left
             </span>

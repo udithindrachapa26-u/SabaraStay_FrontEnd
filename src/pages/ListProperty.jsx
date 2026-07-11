@@ -18,6 +18,9 @@ export default function ListProperty() {
     attachedBathroom: false,
     parking: false,
     kitchen: false,
+    shortTerm: false,
+    longTerm: false,
+    forLecturers: false,
   });
 
   const [photos, setPhotos] = useState([]);
@@ -57,29 +60,27 @@ export default function ListProperty() {
       return;
     }
 
-    if (photos.length === 0) {
-      setFormFeedback({ message: "Please upload at least one photo.", type: "error" });
-      return;
-    }
-
     if (photos.length > MAX_PHOTOS) {
       setFormFeedback({ message: `Maximum ${MAX_PHOTOS} photos allowed. Please remove extra photos.`, type: "error" });
       return;
     }
 
     const data = new FormData();
-    data.append("boardingName", form.boardingName);
-    data.append("boardingType", form.boardingType);
-    data.append("address", form.address);
-    data.append("price", form.price);
-    data.append("totalRooms", form.totalRooms);
-    data.append("availableSpace", form.availableSpace);
-    data.append("description", form.description);
-    data.append("distance", form.distance);
+    data.append("boardingName", form.boardingName.trim());
+    data.append("boardingType", form.boardingType.trim());
+    data.append("address", form.address.trim());
+    data.append("price", Number(form.price));
+    data.append("totalRooms", Number(form.totalRooms));
+    data.append("availableSpace", Number(form.availableSpace));
+    data.append("description", form.description.trim());
+    data.append("distance", Number(form.distance));
     data.append("freeWifi", form.freeWifi ? "1" : "0");
     data.append("attachedBathroom", form.attachedBathroom ? "1" : "0");
     data.append("parking", form.parking ? "1" : "0");
     data.append("kitchen", form.kitchen ? "1" : "0");
+    data.append("shortTerm", form.shortTerm ? "1" : "0");
+    data.append("longTerm", form.longTerm ? "1" : "0");
+    data.append("forLecturers", form.forLecturers ? "1" : "0");
 
     photos.forEach((photo) => {
       data.append("photos", photo);
@@ -193,6 +194,43 @@ export default function ListProperty() {
                 className="h-5 w-5 cursor-pointer"
               />
               <span>Kitchen Access</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Availability */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-yellow-300">Availability</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="shortTerm"
+                checked={form.shortTerm}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Short Term</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="longTerm"
+                checked={form.longTerm}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>Long Term</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer rounded-lg bg-white/5 p-3 hover:bg-white/10">
+              <input
+                type="checkbox"
+                name="forLecturers"
+                checked={form.forLecturers}
+                onChange={handleChange}
+                className="h-5 w-5 cursor-pointer"
+              />
+              <span>For Lecturers</span>
             </label>
           </div>
         </div>

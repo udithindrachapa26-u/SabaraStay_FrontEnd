@@ -42,6 +42,9 @@ export default function Home() {
     attachedBathroom: false,
     parking: false,
     kitchen: false,
+    shortTerm: false,
+    longTerm: false,
+    forLecturers: false,
   });
 
   const handleFilterChange = (e) => {
@@ -68,34 +71,13 @@ export default function Home() {
     if (filters.attachedBathroom) query.set("attachedBathroom", "true");
     if (filters.parking) query.set("parking", "true");
     if (filters.kitchen) query.set("kitchen", "true");
+    if (filters.shortTerm) query.set("shortTerm", "true");
+    if (filters.longTerm) query.set("longTerm", "true");
+    if (filters.forLecturers) query.set("forLecturers", "true");
 
     const queryString = query.toString();
     navigate(`/search${queryString ? `?${queryString}` : ""}`);
   };
-
-  const actions = [
-    {
-      icon: BedDouble,
-      label: "Short Term",
-      color: "from-indigo-400 to-violet-500",
-    },
-    {
-      icon: HomeIcon,
-      label: "Long Term",
-      color: "from-emerald-400 to-teal-500",
-    },
-    {
-      icon: GraduationCap,
-      label: "For Lecturers",
-      color: "from-sky-400 to-blue-500",
-    },
-    {
-      icon: MapPinPlus,
-      label: "Add Property",
-      color: "from-yellow-400 to-orange-500",
-      action: () => navigate("/list-property"),
-    },
-  ];
 
   return (
     <div className="font-sans overflow-x-hidden">
@@ -118,22 +100,25 @@ export default function Home() {
           <Navbar />
 
           {/* Categories */}
-          <section className="flex justify-center gap-12 mt-14 flex-wrap">
+          <section className="flex justify-center gap-12 mt-10" id="categories">
             {[
               {
                 icon: BedDouble,
                 label: "Short Term",
                 color: "from-indigo-400 to-violet-500",
+                action: () => navigate("/search?shortTerm=true"),
               },
               {
                 icon: HomeIcon,
                 label: "Long Term",
                 color: "from-emerald-400 to-teal-500",
+                action: () => navigate("/search?longTerm=true"),
               },
               {
                 icon: GraduationCap,
                 label: "For Lecturers",
                 color: "from-sky-400 to-blue-500",
+                action: () => navigate("/search?forLecturers=true"),
               },
               {
                 icon: MapPinPlus,
@@ -178,7 +163,7 @@ export default function Home() {
           </section>
 
           {/* Hero Main */}
-          <section className="max-w-7xl mx-auto px-10 mt-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <section className="max-w-7xl mx-auto px-10 mt-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-5xl xl:text-6xl font-extrabold leading-tight">
                 Find <br />
@@ -193,14 +178,15 @@ export default function Home() {
 
             <div className="rounded-[2rem] bg-white/10 border border-white/20 p-8 shadow-2xl backdrop-blur-xl">
               <form onSubmit={handleSearch} className="space-y-5">
+                <input
+                  name="q"
+                  value={filters.q}
+                  onChange={handleFilterChange}
+                  className="input w-full"
+                  placeholder="Search by name, address or description"
+                />
+
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    name="q"
-                    value={filters.q}
-                    onChange={handleFilterChange}
-                    className="input"
-                    placeholder="Search by name, address or description"
-                  />
                   <select
                     name="boardingType"
                     value={filters.boardingType}
@@ -212,6 +198,15 @@ export default function Home() {
                     <option value="Female">Female</option>
                     <option value="Mixed">Mixed</option>
                   </select>
+                  <input
+                    name="maxDistance"
+                    type="number"
+                    step="0.1"
+                    value={filters.maxDistance}
+                    onChange={handleFilterChange}
+                    className="input"
+                    placeholder="Max distance (km)"
+                  />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -253,18 +248,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    name="maxDistance"
-                    type="number"
-                    step="0.1"
-                    value={filters.maxDistance}
-                    onChange={handleFilterChange}
-                    className="input"
-                    placeholder="Max distance (km)"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="input flex items-center gap-3 cursor-pointer">
+                {/* Amenities */}
+                <div>
+                  <p className="text-sm text-yellow-300 font-semibold mb-2">Amenities</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         name="freeWifi"
@@ -274,7 +262,7 @@ export default function Home() {
                       />
                       Free WiFi
                     </label>
-                    <label className="input flex items-center gap-3 cursor-pointer">
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         name="attachedBathroom"
@@ -284,30 +272,64 @@ export default function Home() {
                       />
                       Bathroom
                     </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="parking"
+                        checked={filters.parking}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Parking
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="kitchen"
+                        checked={filters.kitchen}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Kitchen
+                    </label>
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="parking"
-                      checked={filters.parking}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Parking
-                  </label>
-                  <label className="input flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="kitchen"
-                      checked={filters.kitchen}
-                      onChange={handleFilterChange}
-                      className="h-4 w-4"
-                    />
-                    Kitchen
-                  </label>
+                {/* Availability */}
+                <div>
+                  <p className="text-sm text-yellow-300 font-semibold mb-2">Availability</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="shortTerm"
+                        checked={filters.shortTerm}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Short Term
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="longTerm"
+                        checked={filters.longTerm}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Long Term
+                    </label>
+                    <label className="input flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        name="forLecturers"
+                        checked={filters.forLecturers}
+                        onChange={handleFilterChange}
+                        className="h-4 w-4"
+                      />
+                      Lecturers
+                    </label>
+                  </div>
                 </div>
 
                 <button

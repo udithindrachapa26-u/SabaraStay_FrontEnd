@@ -7,6 +7,7 @@ import Navbar from "../components/common/Navbar";
 import AppointmentManagement from "./owner dashboard/appointmentManagement";
 import ApproveRequestPage from "./approve request/approveRequest";
 import AddListing from "./add listing/AddListing";
+import Notifications from "./owner dashboard/Notification"
 
 const PAGE_TITLES = {
   appointments: "Appointment Management",
@@ -27,6 +28,7 @@ export default function OwnerDashboard() {
       case "appointments": return <AppointmentManagement />;
       case "approve": return <ApproveRequestPage />;
       case "add-listing": return <AddListing />;
+      case "notifications": return <Notifications />
       default: return <AppointmentManagement />;
     }
   };

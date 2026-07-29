@@ -57,7 +57,9 @@ export default function SubNav({ title = "Appointment Management", onTabChange }
           Add Listing
         </button>
 
-        <button className="icon-btn" aria-label="Notifications">
+        <button className="icon-btn" aria-label="Notifications"
+          onClick={() => onTabChange && onTabChange("notifications")}
+        >
           <BellIcon />
         </button>
 

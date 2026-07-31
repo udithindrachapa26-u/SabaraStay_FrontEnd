@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "sabarastaybackend-production.up.railway.app/api",
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL || "https://sabarastaybackend-production.up.railway.app/api",
   withCredentials: false, // Set to true if using cookies/sessions
 });
 

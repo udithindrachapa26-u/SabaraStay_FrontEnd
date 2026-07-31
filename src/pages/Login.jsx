@@ -2,6 +2,24 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, loginWithGoogle } from "../services/authService";
 
+function MessageIcon() {
+  return (
+    <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="1.8" viewBox="0 0 24 24">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <polyline points="2 4 12 14 22 4" />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="1.8" viewBox="0 0 24 24">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
@@ -150,7 +168,9 @@ function Login() {
         <form onSubmit={handleSubmit} className="space-y-5">
 
           <div className="relative">
-            <span className="absolute left-4 top-3.5 text-xl">✉️</span>
+            <span className="absolute left-4 top-3.5">
+              <MessageIcon />
+            </span>
             <input
               type="email"
               name="email"
@@ -166,7 +186,9 @@ function Login() {
           </div>
 
           <div className="relative">
-            <span className="absolute left-4 top-3.5 text-xl">🔒</span>
+            <span className="absolute left-4 top-3.5">
+              <LockIcon />
+            </span>
             <input
               type="password"
               name="password"

@@ -115,3 +115,9 @@ export const requestData = {
     faculty: "Faculty of Computing"
   }],
 }
+
+//Notification Status
+export const notificationStatus = {
+  unread: 4,
+  thisweek: 6
+}

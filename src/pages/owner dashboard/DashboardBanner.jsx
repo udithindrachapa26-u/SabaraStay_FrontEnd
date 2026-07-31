@@ -1,7 +1,7 @@
 // import { BsCalendarDate } from "react-icons/bs";
 // import { MdUpdate } from "react-icons/md";
 // import { FaUser } from "react-icons/fa";
-import { dashboardStats } from "../../../data/appointmentData";
+import { dashboardStats } from "../../data/appointmentData";
 
 export default function DashboardBanner() {
     const stats = [

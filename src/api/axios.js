@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL:
-    import.meta.env.VITE_API_BASE_URL || "https://sabarastaybackend-production.up.railway.app/api",
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api", // Default to localhost if not set
   withCredentials: false, // Set to true if using cookies/sessions
 });
 

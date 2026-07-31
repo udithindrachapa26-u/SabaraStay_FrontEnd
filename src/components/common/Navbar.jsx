@@ -1,16 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
-
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
-
   return (
     <nav
       className="
@@ -21,16 +19,19 @@ export default function Navbar() {
       "
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-
         {/* LOGO */}
         <Link
           to="/home"
-          className="text-xl font-extrabold tracking-tight"
+          className="flex items-center gap-2 text-xl font-extrabold tracking-tight"
         >
+          <img
+            src={logo}
+            alt="SabraStay Logo"
+            className="h-9 w-9 object-contain"
+          />
           <span className="text-white">Sabra</span>
           <span className="text-yellow-400">Stay</span>
         </Link>
-
         {/* CENTER - Nav Links */}
             <div className="flex-1 flex justify-center gap-8">
               <Link
@@ -39,14 +40,12 @@ export default function Navbar() {
               >
                 How It Works
               </Link>
-
               <Link
                 to="/about"
                 className="text-sm text-white/90 hover:text-yellow-400 transition"
               >
                 About
               </Link>
-
               <Link
                 to="/help"
                 className="text-sm text-white/90 hover:text-yellow-400 transition"
@@ -54,10 +53,8 @@ export default function Navbar() {
                 Help
               </Link>
             </div>
-
         {/* NAV LINKS */}
         <div className="flex items-center gap-6 text-sm font-medium">
-
           {/* Student Dashboard */}
           {token && role === "student" && (
             <Link
@@ -95,7 +92,6 @@ export default function Navbar() {
               Admin Dashboard
             </Link>
           )}
-
           {/* Not logged in */}
           {!token && (
             <>
@@ -109,7 +105,6 @@ export default function Navbar() {
               >
                 Login
               </Link>
-
               <Link
                   to="/register"
                   className="
@@ -126,7 +121,6 @@ export default function Navbar() {
               </Link>
             </>
           )}
-
           {/* Logged in */}
           {token && (
             <button
@@ -141,9 +135,7 @@ export default function Navbar() {
             </button>
           )}
         </div>
-
       </div>
     </nav>
   );
 }
-

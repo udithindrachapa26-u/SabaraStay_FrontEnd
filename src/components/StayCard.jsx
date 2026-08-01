@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function StayCard({ boarding }) {
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/api\/?$/, "");
 
   // If no boarding data is provided yet, render a beautiful pulse skeleton card
   if (!boarding) {

@@ -217,7 +217,7 @@ export default function BoardingDetails() {
     }
   };
 
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/api\/?$/, "");
 
   const defaultPhotos = [
     "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=800&q=80",

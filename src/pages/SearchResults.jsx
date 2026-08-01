@@ -69,7 +69,7 @@ export default function SearchResults() {
     }
   });
 
-  const SERVER_URL = "http://localhost:5000";
+  const SERVER_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/api\/?$/, "");
 
   // Helpers to support multiple backend field names
   const resolveImage = (b) => {

@@ -62,25 +62,37 @@ export default function Navbar() {
             {token && role === "student" && (
               <Link
                 to="/student/dashboard"
-                className="hidden sm:inline text-white/90 hover:text-yellow-400 transition"
+                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/90 transition hover:bg-yellow-400/20 hover:text-yellow-400"
+                aria-label="Student dashboard"
               >
-                Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5 19a6 6 0 1 1 14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
               </Link>
             )}
             {token && role === "owner" && (
               <Link
                 to="/owner/dashboard"
-                className="hidden sm:inline text-white/90 hover:text-yellow-400 transition"
+                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/90 transition hover:bg-yellow-400/20 hover:text-yellow-400"
+                aria-label="Owner dashboard"
               >
-                Owner Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-3v-5H8v5H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 13h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
               </Link>
             )}
             {token && role === "admin" && (
               <Link
                 to="/admin/dashboard"
-                className="hidden sm:inline text-white/90 hover:text-yellow-400 transition"
+                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/90 transition hover:bg-yellow-400/20 hover:text-yellow-400"
+                aria-label="Admin dashboard"
               >
-                Admin Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M12 3 4 7v5c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9.5 12.5 11 14l3.5-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </Link>
             )}
             {!token && (
@@ -150,27 +162,42 @@ export default function Navbar() {
               <Link
                 to="/student/dashboard"
                 onClick={closeMenu}
-                className="block rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                aria-label="Student dashboard"
               >
-                Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5 19a6 6 0 1 1 14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+                <span>Profile</span>
               </Link>
             )}
             {token && role === "owner" && (
               <Link
                 to="/owner/dashboard"
                 onClick={closeMenu}
-                className="block rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                aria-label="Owner dashboard"
               >
-                Owner Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-3v-5H8v5H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 13h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+                <span>Profile</span>
               </Link>
             )}
             {token && role === "admin" && (
               <Link
                 to="/admin/dashboard"
                 onClick={closeMenu}
-                className="block rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-yellow-400 transition"
+                aria-label="Admin dashboard"
               >
-                Admin Dashboard
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path d="M12 3 4 7v5c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9.5 12.5 11 14l3.5-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Profile</span>
               </Link>
             )}
             {!token && (

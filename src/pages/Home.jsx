@@ -14,6 +14,8 @@ export default function Home() {
   const navigate = useNavigate();
   const [recentBoardings, setRecentBoardings] = useState([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
+  const role = localStorage.getItem("role");
+  const isStudent = role === "student";
 
   useEffect(() => {
     const fetchRecentBoardings = async () => {
@@ -120,12 +122,16 @@ export default function Home() {
                 color: "from-sky-400 to-blue-500",
                 action: () => navigate("/search?forLecturers=true"),
               },
-              {
-                icon: MapPinPlus,
-                label: "Add Property",
-                color: "from-yellow-400 to-orange-500",
-                action: () => navigate("/list-property"),
-              },
+              ...(isStudent
+                ? []
+                : [
+                    {
+                      icon: MapPinPlus,
+                      label: "Add Property",
+                      color: "from-yellow-400 to-orange-500",
+                      action: () => navigate("/list-property"),
+                    },
+                  ]),
             ].map((item, i) => {
               const Icon = item.icon;
               return (

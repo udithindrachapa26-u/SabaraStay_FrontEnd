@@ -95,6 +95,7 @@ export default function OwnerDashboard() {
   const [bookingActionFeedback, setBookingActionFeedback] = useState({ message: "", type: "" });
   // Track which boarding sections are expanded in the booking requests panel
   const [expandedBoardings, setExpandedBoardings] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -347,10 +348,10 @@ export default function OwnerDashboard() {
     }
   };
 
-  const handleDelete = async (boardingID) => {
-    const confirmed = window.confirm("Delete this boarding listing? This cannot be undone.");
-    if (!confirmed) return;
+  const handleDelete = async () => {
+    if (!deleteTarget?.boardingID) return;
 
+    const boardingID = deleteTarget.boardingID;
     try {
       await api.delete(`/boardings/${boardingID}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -364,6 +365,8 @@ export default function OwnerDashboard() {
         message: error.response?.data?.message || "Unable to delete boarding right now.",
         type: "error",
       });
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -673,7 +676,12 @@ export default function OwnerDashboard() {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDelete(boarding.boardingID)}
+                              onClick={() =>
+                                setDeleteTarget({
+                                  boardingID: boarding.boardingID,
+                                  boardingName: boarding.boardingName || "this boarding",
+                                })
+                              }
                               className="rounded-3xl border border-red-500/30 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
                             >
                               Delete
@@ -870,6 +878,42 @@ export default function OwnerDashboard() {
           </section>
         )}
       </div>
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/75 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-500/15 text-2xl text-red-300">
+                ⚠
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Delete boarding?</h3>
+                <p className="text-sm text-slate-400">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-5 rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-300">
+              You are about to remove <span className="font-semibold text-white">{deleteTarget.boardingName}</span> from your listings.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+              >
+                Delete Listing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

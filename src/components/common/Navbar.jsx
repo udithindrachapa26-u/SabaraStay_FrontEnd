@@ -7,10 +7,12 @@ export default function Navbar() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
     localStorage.clear();
     setIsMenuOpen(false);
+    setShowLogoutConfirm(false);
     navigate("/login");
   };
 
@@ -99,7 +101,7 @@ export default function Navbar() {
             )}
             {token && (
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutConfirm(true)}
                 className="hidden sm:inline text-white/80 hover:text-red-400 transition"
               >
                 Logout
@@ -191,7 +193,7 @@ export default function Navbar() {
             )}
             {token && (
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutConfirm(true)}
                 className="block w-full rounded-lg px-3 py-2 text-left text-white/90 hover:bg-white/10 hover:text-red-400 transition"
               >
                 Logout
@@ -200,6 +202,31 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white">Confirm logout</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Are you sure you want to log out of your account?
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

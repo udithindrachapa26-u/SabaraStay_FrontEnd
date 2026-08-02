@@ -17,6 +17,9 @@ export default function AdminDashboard() {
   // Search query states
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState({ open: false, message: "", onConfirm: null });
+
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const storedUser = localStorage.getItem("user");
@@ -77,70 +80,75 @@ export default function AdminDashboard() {
     }
   }, [feedback]);
 
-  // Hashing/Deleting action handlers
-  const handleDeleteStudent = async (studentID) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this student? All their bookings, appointments, reviews, and notifications will be permanently removed."
-    );
-    if (!confirmDelete) return;
+  // Confirmation modal helpers
+  const askConfirm = (message, onConfirm) => {
+    setConfirmModal({ open: true, message, onConfirm });
+  };
+  const closeConfirm = () => setConfirmModal({ open: false, message: "", onConfirm: null });
 
-    try {
-      const headers = { Authorization: `Bearer ${token}` };
-      await api.delete(`/admin/students/${studentID}`, { headers });
-      
-      setStudents((prev) => prev.filter((s) => s.id !== studentID));
-      setFeedback({ message: "Student account deleted successfully.", type: "success" });
-    } catch (error) {
-      console.error("Failed to delete student:", error);
-      setFeedback({
-        message: error.response?.data?.message || "Failed to delete student.",
-        type: "error",
-      });
-    }
+  // Delete action handlers
+  const handleDeleteStudent = (studentID) => {
+    askConfirm(
+      "Are you sure you want to delete this student? All their bookings, appointments, reviews, and notifications will be permanently removed.",
+      async () => {
+        closeConfirm();
+        try {
+          const headers = { Authorization: `Bearer ${token}` };
+          await api.delete(`/admin/students/${studentID}`, { headers });
+          setStudents((prev) => prev.filter((s) => s.id !== studentID));
+          setFeedback({ message: "Student account deleted successfully.", type: "success" });
+        } catch (error) {
+          console.error("Failed to delete student:", error);
+          setFeedback({
+            message: error.response?.data?.message || `Failed to delete student. (HTTP ${error.response?.status || "network error"})`,
+            type: "error",
+          });
+        }
+      }
+    );
   };
 
-  const handleDeleteOwner = async (ownerID) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this boarding owner? All their properties, listings, bookings, appointments, and reviews will be permanently deleted."
+  const handleDeleteOwner = (ownerID) => {
+    askConfirm(
+      "Are you sure you want to delete this boarding owner? All their properties, listings, bookings, appointments, and reviews will be permanently deleted.",
+      async () => {
+        closeConfirm();
+        try {
+          const headers = { Authorization: `Bearer ${token}` };
+          await api.delete(`/admin/owners/${ownerID}`, { headers });
+          setOwners((prev) => prev.filter((o) => o.id !== ownerID));
+          setBoardings((prev) => prev.filter((b) => b.boardingOwnerID !== ownerID));
+          setFeedback({ message: "Boarding owner and listings deleted successfully.", type: "success" });
+        } catch (error) {
+          console.error("Failed to delete owner:", error);
+          setFeedback({
+            message: error.response?.data?.message || `Failed to delete owner. (HTTP ${error.response?.status || "network error"})`,
+            type: "error",
+          });
+        }
+      }
     );
-    if (!confirmDelete) return;
-
-    try {
-      const headers = { Authorization: `Bearer ${token}` };
-      await api.delete(`/admin/owners/${ownerID}`, { headers });
-
-      setOwners((prev) => prev.filter((o) => o.id !== ownerID));
-      // Cascade delete their boardings from frontend state
-      setBoardings((prev) => prev.filter((b) => b.boardingOwnerID !== ownerID));
-      setFeedback({ message: "Boarding owner and listings deleted successfully.", type: "success" });
-    } catch (error) {
-      console.error("Failed to delete owner:", error);
-      setFeedback({
-        message: error.response?.data?.message || "Failed to delete owner.",
-        type: "error",
-      });
-    }
   };
 
-  const handleDeleteBoarding = async (boardingID) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete/moderate this boarding listing? This will permanently remove it from the system."
+  const handleDeleteBoarding = (boardingID) => {
+    askConfirm(
+      "Are you sure you want to delete this boarding listing? This will permanently remove it from the system.",
+      async () => {
+        closeConfirm();
+        try {
+          const headers = { Authorization: `Bearer ${token}` };
+          await api.delete(`/admin/boardings/${boardingID}`, { headers });
+          setBoardings((prev) => prev.filter((b) => b.boardingID !== boardingID));
+          setFeedback({ message: "Boarding listing deleted successfully.", type: "success" });
+        } catch (error) {
+          console.error("Failed to delete boarding listing:", error);
+          setFeedback({
+            message: error.response?.data?.message || `Failed to delete listing. (HTTP ${error.response?.status || "network error"})`,
+            type: "error",
+          });
+        }
+      }
     );
-    if (!confirmDelete) return;
-
-    try {
-      const headers = { Authorization: `Bearer ${token}` };
-      await api.delete(`/admin/boardings/${boardingID}`, { headers });
-
-      setBoardings((prev) => prev.filter((b) => b.boardingID !== boardingID));
-      setFeedback({ message: "Boarding listing deleted successfully.", type: "success" });
-    } catch (error) {
-      console.error("Failed to delete boarding listing:", error);
-      setFeedback({
-        message: error.response?.data?.message || "Failed to delete listing.",
-        type: "error",
-      });
-    }
   };
 
   // Searching filter logic
@@ -175,6 +183,33 @@ export default function AdminDashboard() {
 
   return (
     <>
+      {/* ─── Confirmation Modal ─── */}
+      {confirmModal.open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+          onClick={(e) => { if (e.target === e.currentTarget) closeConfirm(); }}
+        >
+          <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-8 shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-3">⚠️ Confirm Deletion</h3>
+            <p className="text-sm text-slate-300 leading-relaxed mb-8">{confirmModal.message}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={closeConfirm}
+                className="rounded-2xl border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmModal.onConfirm}
+                className="rounded-2xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-500 transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AdminNavbar activeTab={activeTab} setActiveTab={setActiveTab} adminUser={adminUser} />
       <main className="min-h-screen bg-slate-950 text-slate-100 px-4 py-8 sm:px-6 lg:px-10 font-sans">
         <div className="mx-auto max-w-7xl space-y-8">

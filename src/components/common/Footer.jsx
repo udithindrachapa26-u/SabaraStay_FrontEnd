@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import logo from "../../assets/navbar_logo.png";
 
 function PhoneIcon() {
   return (
@@ -38,10 +38,13 @@ export default function Footer() {
 
         {/* Logo */}
         <div>
-          <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mb-4">
-            Logo
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-yellow-400/30 bg-yellow-400/10 p-2 shadow-sm shadow-yellow-400/10">
+            <img src={logo} alt="SabraStay Logo" className="h-full w-full object-contain" />
           </div>
-          <h3 className="font-bold text-lg">SabraStay</h3>
+          <h3 className="text-lg font-bold tracking-wide">
+            <span className="text-white">Sabra</span>
+            <span className="text-yellow-400">Stay</span>
+          </h3>
         </div>
 
         {/* Site Map */}

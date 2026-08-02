@@ -62,16 +62,22 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(250,204,21,0.16),_transparent_28%),linear-gradient(135deg,_#020617_0%,_#0f172a_45%,_#111d35_100%)] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-10 left-10 w-40 h-40 bg-yellow-400/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-10 right-10 w-56 h-56 bg-blue-400/10 rounded-full blur-3xl"></div>
+
+      <div className="relative z-10 bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join SabaraStay today</p>
+          <div className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 px-5 py-2 rounded-full font-bold text-lg mb-4">
+            🏠 SabaraStay
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-slate-400">Join SabaraStay today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="firstName" className="block text-sm font-medium text-slate-300 mb-2">
               First Name
             </label>
             <input
@@ -81,13 +87,13 @@ function Register() {
               value={formData.firstName}
               onChange={handleChange}
               placeholder="Enter your first name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="lastName" className="block text-sm font-medium text-slate-300 mb-2">
               Last Name
             </label>
             <input
@@ -97,13 +103,13 @@ function Register() {
               value={formData.lastName}
               onChange={handleChange}
               placeholder="Enter your last name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="contactNo" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="contactNo" className="block text-sm font-medium text-slate-300 mb-2">
               Contact Number
             </label>
             <input
@@ -113,12 +119,12 @@ function Register() {
               value={formData.contactNo}
               onChange={handleChange}
               placeholder="Enter your contact number"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
               Email Address
             </label>
             <input
@@ -128,13 +134,13 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
               Password
             </label>
             <input
@@ -144,10 +150,10 @@ function Register() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Create a password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
               required
             />
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-slate-400 mt-2">
               Use a strong password with uppercase, lowercase, numbers and symbols.
             </p>
             <ul className="mt-3 grid gap-1 text-sm">
@@ -156,8 +162,8 @@ function Register() {
                   key={item.label}
                   className={
                     item.valid
-                      ? "text-emerald-600"
-                      : "text-red-600"
+                      ? "text-emerald-400"
+                      : "text-red-400"
                   }
                 >
                   {item.valid ? "✓" : "•"} {item.label}
@@ -167,7 +173,7 @@ function Register() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
               Confirm Password
             </label>
             <input
@@ -177,7 +183,7 @@ function Register() {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Re-enter your password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
               required
             />
           </div>
@@ -186,8 +192,8 @@ function Register() {
             <div
               className={
                 formFeedback.type === "success"
-                  ? "rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 px-4 py-3 text-sm"
-                  : "rounded-lg border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
+                  ? "rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 px-4 py-3 text-sm"
+                  : "rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 px-4 py-3 text-sm"
               }
             >
               {formFeedback.message}
@@ -195,7 +201,7 @@ function Register() {
           )}
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="role" className="block text-sm font-medium text-slate-300 mb-2">
               Account Type
             </label>
             <select
@@ -203,7 +209,7 @@ function Register() {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 bg-white"
+              className="w-full px-4 py-3 border border-slate-700 rounded-xl bg-slate-800 text-white focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-colors duration-200"
             >
               <option value="student">Student</option>
               <option value="owner">Boarding Owner</option>
@@ -212,16 +218,16 @@ function Register() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-semibold py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-yellow-400/30 transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-yellow-400/20"
           >
             Create Account
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-slate-400">
             Already have an account?{' '}
-            <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+            <a href="/login" className="text-yellow-400 hover:text-yellow-300 font-medium">
               Sign in here
             </a>
           </p>

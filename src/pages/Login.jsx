@@ -135,30 +135,30 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-500 via-blue-500 to-cyan-500 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(250,204,21,0.16),_transparent_28%),linear-gradient(135deg,_#020617_0%,_#0f172a_45%,_#111d35_100%)] relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="absolute top-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-10 right-10 w-56 h-56 bg-white/10 rounded-full blur-3xl"></div>
+      <div className="absolute top-10 left-10 w-40 h-40 bg-yellow-400/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-10 right-10 w-56 h-56 bg-blue-400/10 rounded-full blur-3xl"></div>
 
-      <div className="relative z-10 bg-white/95 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
+      <div className="relative z-10 bg-slate-900/90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/10">
 
         {/* Branding Header */}
         <div className="text-center mb-8">
-          <div className="inline-block bg-linear-to-r from-indigo-600 to-blue-600 text-white px-6 py-2 rounded-full font-bold text-lg mb-4">
+          <div className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 px-6 py-2 rounded-full font-bold text-lg mb-4">
             🏠 SabaraStay
           </div>
-          <h2 className="text-3xl font-extrabold bg-linear-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-3xl font-extrabold text-white mb-2">
             Welcome Back
           </h2>
-          <p className="text-gray-600 text-sm">Sign in to your account to continue</p>
+          <p className="text-slate-400 text-sm">Sign in to your account to continue</p>
         </div>
 
         {feedback.message && (
           <div
             className={
               feedback.type === "success"
-                ? "mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900"
-                : "mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-900"
+                ? "mb-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-300"
+                : "mb-5 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300"
             }
           >
             {feedback.message}
@@ -178,10 +178,10 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl
-                         focus:outline-none focus:border-blue-500 focus:ring-2
-                         focus:ring-blue-200 transition duration-300
-                         bg-gray-50 hover:bg-white"
+              className="w-full pl-12 pr-4 py-3 border border-slate-700 rounded-xl
+                         focus:outline-none focus:border-yellow-400 focus:ring-2
+                         focus:ring-yellow-400/20 transition duration-300
+                         bg-slate-800 text-white placeholder:text-slate-400 hover:bg-slate-700"
             />
           </div>
 
@@ -196,18 +196,18 @@ function Login() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl
-                         focus:outline-none focus:border-blue-500 focus:ring-2
-                         focus:ring-blue-200 transition duration-300
-                         bg-gray-50 hover:bg-white"
+              className="w-full pl-12 pr-4 py-3 border border-slate-700 rounded-xl
+                         focus:outline-none focus:border-yellow-400 focus:ring-2
+                         focus:ring-yellow-400/20 transition duration-300
+                         bg-slate-800 text-white placeholder:text-slate-400 hover:bg-slate-700"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-linear-to-r from-indigo-600 to-blue-600 text-white py-3
+            className="w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 py-3
                        rounded-xl font-bold text-lg
-                       hover:shadow-lg hover:shadow-blue-500/50 transition duration-300
+                       hover:shadow-lg hover:shadow-yellow-400/30 transition duration-300
                        transform hover:scale-105 active:scale-95"
           >
             Sign In
@@ -216,7 +216,7 @@ function Login() {
           <div className="text-right">
             <Link
               to="/forgot-password"
-              className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition"
+              className="text-sm text-yellow-400 font-semibold hover:text-yellow-300 transition"
             >
               Forgot password?
             </Link>
@@ -225,21 +225,21 @@ function Login() {
         </form>
 
         <div className="relative flex py-4 items-center">
-          <div className="flex-grow border-t border-gray-200"></div>
-          <span className="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-wider">or</span>
-          <div className="flex-grow border-t border-gray-200"></div>
+          <div className="flex-grow border-t border-slate-700"></div>
+          <span className="flex-shrink mx-4 text-slate-400 text-xs uppercase tracking-wider">or</span>
+          <div className="flex-grow border-t border-slate-700"></div>
         </div>
 
         <div className="flex justify-center mb-4">
           <div id="google-signin-btn" className="w-full"></div>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-center text-gray-600">
+        <div className="mt-6 pt-6 border-t border-slate-700">
+          <p className="text-sm text-center text-slate-400">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="text-blue-600 font-bold hover:text-blue-700 transition"
+              className="text-yellow-400 font-bold hover:text-yellow-300 transition"
             >
               Create one
             </Link>
